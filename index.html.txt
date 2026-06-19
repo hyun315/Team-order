@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>팀 음료 주문</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #F7F5F0; --ink: #1C1C1C; --muted: #6B6B6B;
+    --border: #E0DDD7; --white: #FFFFFF; --red: #C0392B;
+    --brand: #00704A; --brand-dark: #1E3932; --brand-light: #D4E9E2; --brand-gold: #CBA258;
+  }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+  .brand-bar { display: flex; background: #111; padding: 10px 16px; gap: 10px; }
+  .brand-btn {
+    flex: 1; padding: 9px 10px; border-radius: 10px; border: 2px solid transparent;
+    font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .brand-btn.sb { background: #1E3932; color: #fff; }
+  .brand-btn.ts { background: #222; color: #aaa; }
+  .brand-btn.sb.active { border-color: #00A862; }
+  .brand-btn.ts.active { background: #C8102E; color: #fff; border-color: #ff4d6d; }
+
+  header {
+    background: var(--brand-dark); color: #fff; padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 100; transition: background 0.3s;
+  }
+  .logo-icon { font-size: 26px; }
+  .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-sub  { font-size: 11px; opacity: 0.6; font-weight: 300; }
+
+  .tabs { display: flex; background: var(--brand-dark); border-top: 1px solid rgba(255,255,255,0.1); transition: background 0.3s; }
+  .tab {
+    flex: 1; padding: 12px; text-align: center; font-size: 13px; font-weight: 500;
+    color: rgba(255,255,255,0.5); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
+  }
+  .tab.active { color: #fff; border-bottom-color: var(--brand-gold); }
+
+  .screen { display: none; padding: 18px; max-width: 480px; margin: 0 auto; }
+  .screen.active { display: block; }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--brand); margin-bottom: 10px; transition: color 0.3s;
+  }
+
+  .input-field {
+    width: 100%; padding: 12px 14px; font-family: inherit; font-size: 15px;
+    border: 1.5px solid var(--border); border-radius: 10px; background: var(--white);
+    outline: none; transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--brand); }
+  .name-block { margin-bottom: 22px; }
+
+  .search-bar { position: relative; margin-bottom: 14px; }
+  .search-bar input { padding-left: 38px; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+
+  .chips { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; flex-wrap: nowrap; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; padding: 6px 13px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    border: 1.5px solid var(--border); background: var(--white); cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+  .menu-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+  .menu-item {
+    background: var(--white); border-radius: 12px; padding: 13px 14px;
+    display: flex; align-items: center; gap: 11px;
+    cursor: pointer; border: 1.5px solid var(--border); transition: all 0.15s;
+  }
+  .menu-item:hover { border-color: var(--brand); }
+  .menu-item.selected { border-color: var(--brand); background: var(--brand-light); }
+  .menu-emoji { font-size: 26px; width: 38px; text-align: center; flex-shrink: 0; }
+  .menu-info  { flex: 1; min-width: 0; }
+  .menu-name    { font-size: 14px; font-weight: 500; margin-bottom: 1px; }
+  .menu-name-en { font-size: 11px; color: var(--muted); }
+  .menu-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 12px; transition: all 0.15s;
+  }
+  .menu-item.selected .menu-check { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+  .options-panel {
+    background: var(--white); border-radius: 14px; padding: 16px;
+    margin-bottom: 22px; border: 1.5px solid var(--brand-light);
+  }
+  .options-title { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 13px; }
+  .option-group  { margin-bottom: 13px; }
+  .option-label  { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.4px; margin-bottom: 7px; }
+  .option-btns   { display: flex; gap: 7px; flex-wrap: wrap; }
+  .opt-btn {
+    padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 500;
+    font-family: inherit; border: 1.5px solid var(--border); background: var(--white);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .opt-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .memo-input { margin-top: 5px; font-size: 13px; resize: none; height: 56px; }
+
+  .btn-submit {
+    width: 100%; padding: 14px; background: var(--brand); color: #fff;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    border: none; border-radius: 12px; cursor: pointer; transition: opacity 0.2s; letter-spacing: -0.3px;
+  }
+  .btn-submit:hover { opacity: 0.9; }
+  .btn-submit:disabled { background: #ccc !important; color: #fff !important; opacity: 0.6; cursor: not-allowed; }
+
+  /* Summary */
+  .summary-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .summary-count { font-size: 21px; font-weight: 700; }
+  .summary-count span { color: var(--brand); }
+  .btn-copy {
+    padding: 8px 15px; background: var(--brand-gold); color: #fff;
+    font-family: inherit; font-size: 12px; font-weight:
