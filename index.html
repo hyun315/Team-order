@@ -269,17 +269,21 @@
 
 <!-- ORDER -->
 <div id="screen-order" class="screen active">
-  <div class="name-block">
+  <div class="name-block" style="display:none">
     <div class="section-label">소속(팀명)</div>
     <div class="team-chip-row" id="team-chips"></div>
     <div class="name-row">
       <div>
-        <input class="input-field" id="input-team" type="text" placeholder="직접 입력 (예: 영업1팀)" maxlength="14">
+        <input class="input-field" id="input-team" type="text" placeholder="직접 입력 (예: 영업1팀)" maxlength="14" value="미지정">
       </div>
       <div>
-        <input class="input-field" id="input-name" type="text" placeholder="이름" maxlength="10">
+        <input class="input-field" id="input-name-hidden-placeholder" type="text" style="display:none">
       </div>
     </div>
+  </div>
+  <div class="name-block">
+    <div class="section-label">이름</div>
+    <input class="input-field" id="input-name" type="text" placeholder="이름을 입력하세요" maxlength="10">
   </div>
   <div class="section-label">메뉴 선택</div>
   <div class="search-bar">
