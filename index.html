@@ -99,6 +99,15 @@
   }
   .input-field:focus { border-color: var(--brand); }
   .name-block { margin-bottom: 22px; }
+  .name-row { display: flex; gap: 10px; }
+  .name-row > div { flex: 1; }
+  .team-chip-row { display: flex; gap: 7px; margin-bottom: 8px; flex-wrap: wrap; }
+  .team-chip {
+    padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1.5px solid var(--border); background: var(--white); cursor: pointer;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .team-chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
 
   .search-bar { position: relative; margin-bottom: 14px; }
   .search-bar input { padding-left: 38px; }
@@ -166,6 +175,16 @@
   .btn-copy:hover { opacity: 0.85; }
 
   .group-block { background: var(--white); border-radius: 14px; border: 1.5px solid var(--brand-light); margin-bottom: 18px; overflow: hidden; }
+
+  .team-block { margin-bottom: 22px; }
+  .team-block-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 4px; margin-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .team-block-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
+  .team-block-title .team-icon { font-size: 16px; }
+  .team-block-total { font-size: 13px; color: var(--muted); font-weight: 600; }
   .group-block-header {
     color: #fff; padding: 10px 15px; font-size: 13px; font-weight: 700;
     display: flex; justify-content: space-between; align-items: center;
@@ -192,7 +211,8 @@
   .order-cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
   .order-card { background: var(--white); border-radius: 12px; padding: 13px 15px; border: 1.5px solid var(--border); }
   .order-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
-  .order-person { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .order-person { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .team-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; background: #EFEAE0; color: #6B5B3D; }
   .order-brand-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; }
   .badge-sb { background: #D4E9E2; color: #00704A; }
   .badge-ts { background: #ffe0e4; color: #C8102E; }
@@ -250,8 +270,16 @@
 <!-- ORDER -->
 <div id="screen-order" class="screen active">
   <div class="name-block">
-    <div class="section-label">이름</div>
-    <input class="input-field" id="input-name" type="text" placeholder="이름을 입력하세요" maxlength="10">
+    <div class="section-label">소속(팀명)</div>
+    <div class="team-chip-row" id="team-chips"></div>
+    <div class="name-row">
+      <div>
+        <input class="input-field" id="input-team" type="text" placeholder="직접 입력 (예: 영업1팀)" maxlength="14">
+      </div>
+      <div>
+        <input class="input-field" id="input-name" type="text" placeholder="이름" maxlength="10">
+      </div>
+    </div>
   </div>
   <div class="section-label">메뉴 선택</div>
   <div class="search-bar">
@@ -316,6 +344,8 @@ const MENUS = {
     {id:32, cat:'프라푸치노',  emoji:'🥤', name:'그린티 프라푸치노',    en:'Green Tea Frappuccino', temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
     {id:33, cat:'프라푸치노',  emoji:'🥤', name:'모카 프라푸치노',      en:'Mocha Frappuccino',     temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
     {id:34, cat:'프라푸치노',  emoji:'🥤', name:'스트로베리 프라푸치노',en:'Strawberry Frappuccino',temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:35, cat:'프라푸치노',  emoji:'🥤', name:'바닐라 크림 프라푸치노',en:'Vanilla Cream Frappuccino',temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:36, cat:'프라푸치노',  emoji:'🥤', name:'더블 에스프레소 칩 프라푸치노',en:'Double Espresso Chip Frappuccino',temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true, sweet:true},
     {id:40, cat:'티·음료',     emoji:'🍵', name:'민트 블렌드 티',       en:'Mint Blend Tea',        temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
     {id:41, cat:'티·음료',     emoji:'🍵', name:'잉글리시 브렉퍼스트 티',en:'English Breakfast Tea',temps:['HOT','ICED'],sizes:['Tall','Grande','Venti'],shot:false, sweet:true},
     {id:42, cat:'티·음료',     emoji:'🍵', name:'그린티 라떼',          en:'Green Tea Latte',       temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
@@ -345,6 +375,12 @@ const MENUS = {
     {id:143,cat:'스무디·에이드',emoji:'🥤', name:'자몽 에이드',     en:'Grapefruit Ade',     temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
     {id:144,cat:'스무디·에이드',emoji:'🥤', name:'레몬 에이드',     en:'Lemon Ade',          temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
     {id:145,cat:'스무디·에이드',emoji:'🥤', name:'청포도 에이드',   en:'Green Grape Ade',    temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:150,cat:'쉐이크·프라페',emoji:'🥤', name:'초콜릿 쉐이크',      en:'Chocolate Shake',       temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:151,cat:'쉐이크·프라페',emoji:'🥤', name:'카페모카 프라페',    en:'Cafe Mocha Frappe',     temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:152,cat:'쉐이크·프라페',emoji:'🥤', name:'카라멜 프라페',      en:'Caramel Frappe',        temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:153,cat:'쉐이크·프라페',emoji:'🍨', name:'요거트 아이스 블렌디드', en:'Yogurt Ice Blended', temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:170,cat:'TWG 티',     emoji:'🍵', name:'TWG 크림카라멜 아이스티', en:'TWG Cream Caramel Iced Tea', temps:['ICED'], sizes:['Regular'], shot:false, sweet:true},
+    {id:171,cat:'TWG 티',     emoji:'🍵', name:'TWG 라즈베리 아이스티',   en:'TWG Raspberry Iced Tea',     temps:['ICED'], sizes:['Regular'], shot:false, sweet:true},
     {id:160,cat:'케이크·디저트',emoji:'🎂', name:'딸기 생크림 케이크', en:'Strawberry Cream Cake', temps:['—'], sizes:['조각'], shot:false, sweet:false},
     {id:161,cat:'케이크·디저트',emoji:'🎂', name:'티라미수 케이크',    en:'Tiramisu Cake',         temps:['—'], sizes:['조각'], shot:false, sweet:false},
     {id:162,cat:'케이크·디저트',emoji:'🎂', name:'치즈케이크',         en:'Cheesecake',            temps:['—'], sizes:['조각'], shot:false, sweet:false},
@@ -382,9 +418,33 @@ setTimeout(() => {
   if (!fbConnected) document.getElementById('conn-banner').classList.add('show');
 }, 1500);
 
+// ── 팀명 프리셋 칩 ───────────────────────────────────
+const TEAM_PRESETS = ['여의도지점', '임시사용'];
+
+function renderTeamChips() {
+  const el = document.getElementById('team-chips');
+  el.innerHTML = '';
+  TEAM_PRESETS.forEach(t => {
+    const chip = document.createElement('div');
+    chip.className = 'team-chip';
+    chip.textContent = t;
+    chip.onclick = () => {
+      const input = document.getElementById('input-team');
+      input.value = t;
+      renderTeamChips(); // re-render to update active state
+      checkSubmit();
+    };
+    if (document.getElementById('input-team').value.trim() === t) chip.classList.add('active');
+    el.appendChild(chip);
+  });
+}
+
+document.getElementById('input-team').addEventListener('input', renderTeamChips);
+
 // ── 초기화 ───────────────────────────────────────────
 function init() {
   applyBrandCSS('sb');
+  renderTeamChips();
   renderChips();
   renderMenu();
   renderSummary();
@@ -516,21 +576,25 @@ function setActive(parent, btn) {
 }
 
 function checkSubmit() {
+  const team = document.getElementById('input-team').value.trim();
   const name = document.getElementById('input-name').value.trim();
   const needsTemp = selectedMenu && selectedMenu.temps[0] !== '—';
-  const ok = name && selectedMenu && (!needsTemp || options.temp) && options.size;
+  const ok = team && name && selectedMenu && (!needsTemp || options.temp) && options.size;
   document.getElementById('btn-submit').disabled = !ok;
 }
 
+document.getElementById('input-team').addEventListener('input', checkSubmit);
 document.getElementById('input-name').addEventListener('input', checkSubmit);
 
 function submitOrder() {
   if (!fbConnected) { showToast('서버 연결 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+  const team = document.getElementById('input-team').value.trim();
   const name = document.getElementById('input-name').value.trim();
   const memo = document.getElementById('opt-memo').value.trim();
   const m = selectedMenu;
   const order = {
     brand: currentBrand,
+    team,
     name,
     menuName: m.name,
     emoji: m.emoji,
@@ -545,7 +609,7 @@ function submitOrder() {
 
   window.fbPushOrder(order)
     .then(() => {
-      showToast(`${name}님 주문 완료! ✅`);
+      showToast(`${team} ${name}님 주문 완료! ✅`);
       selectedMenu = null;
       options = { temp:'', size:'', shot:'기본', sweet:'기본' };
       document.getElementById('input-name').value = '';
@@ -588,51 +652,76 @@ function renderSummary() {
     return;
   }
 
-  const brandMap = {};
+  // ── 팀 > 브랜드 > 메뉴 > 옵션 단위로 그룹 ──
+  const teamMap = {};
   orders.forEach(o => {
-    if (!brandMap[o.brand]) brandMap[o.brand] = {};
+    const team = o.team || '미지정';
+    if (!teamMap[team]) teamMap[team] = {};
+    if (!teamMap[team][o.brand]) teamMap[team][o.brand] = {};
     const mk = `${o.emoji} ${o.menuName}`;
-    if (!brandMap[o.brand][mk]) brandMap[o.brand][mk] = {};
+    if (!teamMap[team][o.brand][mk]) teamMap[team][o.brand][mk] = {};
     const ok = orderKey(o);
-    if (!brandMap[o.brand][mk][ok]) brandMap[o.brand][mk][ok] = { o, names: [], count: 0 };
-    brandMap[o.brand][mk][ok].names.push(o.name);
-    brandMap[o.brand][mk][ok].count++;
+    if (!teamMap[team][o.brand][mk][ok]) teamMap[team][o.brand][mk][ok] = { o, names: [], count: 0 };
+    teamMap[team][o.brand][mk][ok].names.push(o.name);
+    teamMap[team][o.brand][mk][ok].count++;
   });
 
-  Object.entries(brandMap).forEach(([brand, menus]) => {
-    const cfg   = BRAND_CFG[brand];
-    const total = orders.filter(o => o.brand === brand).length;
-    const block = document.createElement('div');
-    block.className = 'group-block';
-    let html = `<div class="group-block-header" style="background:${cfg.color}">
-      <span>${cfg.icon} ${cfg.label.replace(' 팀 주문','')}</span>
-      <span class="total-badge">총 ${total}잔</span>
+  // 팀 이름 가나다순 정렬 (미지정은 맨 뒤)
+  const teamNames = Object.keys(teamMap).sort((a, b) => {
+    if (a === '미지정') return 1;
+    if (b === '미지정') return -1;
+    return a.localeCompare(b, 'ko');
+  });
+
+  teamNames.forEach(team => {
+    const brandsInTeam = teamMap[team];
+    const teamTotal = orders.filter(o => (o.team || '미지정') === team).length;
+
+    const teamBlock = document.createElement('div');
+    teamBlock.className = 'team-block';
+    let teamHtml = `<div class="team-block-header">
+      <div class="team-block-title"><span class="team-icon">👥</span>${team}</div>
+      <div class="team-block-total">총 ${teamTotal}잔</div>
     </div>`;
 
-    Object.entries(menus).forEach(([menuKey, optMap]) => {
-      const menuTotal = Object.values(optMap).reduce((s,v) => s + v.count, 0);
-      html += `<div class="menu-subheader">
-        <span>${menuKey}</span>
-        <span class="menu-total" style="color:${cfg.color}">${menuTotal}잔</span>
-      </div>`;
-
-      Object.values(optMap).forEach(({ o, names, count }) => {
-        const tags = makeOptTags(o);
-        const tagHtml = tags.length
-          ? tags.map(t => `<span class="opt-tag${t.highlight ? ' highlight' : ''}">${t.text}</span>`).join('')
-          : `<span class="opt-tag">기본 옵션</span>`;
-        html += `<div class="group-row">
-          <div class="group-row-opts">${tagHtml}</div>
-          <div class="group-row-names">${names.join('<br>')}</div>
-          <div class="group-row-count">×${count}</div>
+    Object.entries(brandsInTeam).forEach(([brand, menus]) => {
+      const cfg   = BRAND_CFG[brand];
+      const total = orders.filter(o => (o.team || '미지정') === team && o.brand === brand).length;
+      let html = `<div class="group-block">
+        <div class="group-block-header" style="background:${cfg.color}">
+          <span>${cfg.icon} ${cfg.label.replace(' 팀 주문','')}</span>
+          <span class="total-badge">총 ${total}잔</span>
         </div>`;
+
+      Object.entries(menus).forEach(([menuKey, optMap]) => {
+        const menuTotal = Object.values(optMap).reduce((s,v) => s + v.count, 0);
+        html += `<div class="menu-subheader">
+          <span>${menuKey}</span>
+          <span class="menu-total" style="color:${cfg.color}">${menuTotal}잔</span>
+        </div>`;
+
+        Object.values(optMap).forEach(({ o, names, count }) => {
+          const tags = makeOptTags(o);
+          const tagHtml = tags.length
+            ? tags.map(t => `<span class="opt-tag${t.highlight ? ' highlight' : ''}">${t.text}</span>`).join('')
+            : `<span class="opt-tag">기본 옵션</span>`;
+          html += `<div class="group-row">
+            <div class="group-row-opts">${tagHtml}</div>
+            <div class="group-row-names">${names.join('<br>')}</div>
+            <div class="group-row-count">×${count}</div>
+          </div>`;
+        });
       });
+
+      html += `</div>`;
+      teamHtml += html;
     });
 
-    block.innerHTML = html;
-    groupArea.appendChild(block);
+    teamBlock.innerHTML = teamHtml;
+    groupArea.appendChild(teamBlock);
   });
 
+  // ── 개별 카드 (최신순) ──
   orders.forEach((o) => {
     const tags = makeOptTags(o);
     const tagStr = tags.map(t => t.text).join(' · ') || '기본 옵션';
@@ -642,7 +731,7 @@ function renderSummary() {
     card.className = 'order-card';
     card.innerHTML = `
       <div class="order-card-top">
-        <span class="order-person">${o.name}<span class="order-brand-badge ${badgeClass}">${brandLabel}</span></span>
+        <span class="order-person"><span class="team-badge">${o.team||'미지정'}</span>${o.name}<span class="order-brand-badge ${badgeClass}">${brandLabel}</span></span>
         <button class="btn-delete" onclick="deleteOrder('${o.id}')">✕</button>
       </div>
       <div class="order-menu-name">${o.emoji} ${o.menuName}</div>
@@ -650,22 +739,28 @@ function renderSummary() {
     cards.appendChild(card);
   });
 
+  // ── 복사 텍스트 (팀별로 구분) ──
   const lines = [];
-  Object.entries(brandMap).forEach(([brand, menus]) => {
-    const cfg = BRAND_CFG[brand];
-    lines.push(`${cfg.icon} [${cfg.label.replace(' 팀 주문','')}]`);
-    Object.entries(menus).forEach(([menuKey, optMap]) => {
-      lines.push(`▸ ${menuKey}`);
-      Object.values(optMap).forEach(({ o, names, count }) => {
-        const tags = makeOptTags(o);
-        const optStr = tags.filter(t => !t.text.startsWith('📝')).map(t => t.text).join('/') || '기본';
-        const memo = tags.find(t => t.text.startsWith('📝'));
-        lines.push(`   ${optStr} × ${count}  (${names.join(', ')})${memo ? '  ' + memo.text : ''}`);
+  teamNames.forEach(team => {
+    lines.push(`━━━━━━━━━━━━━`);
+    lines.push(`👥 [${team}]`);
+    const brandsInTeam = teamMap[team];
+    Object.entries(brandsInTeam).forEach(([brand, menus]) => {
+      const cfg = BRAND_CFG[brand];
+      lines.push(`${cfg.icon} ${cfg.label.replace(' 팀 주문','')}`);
+      Object.entries(menus).forEach(([menuKey, optMap]) => {
+        lines.push(`▸ ${menuKey}`);
+        Object.values(optMap).forEach(({ o, names, count }) => {
+          const tags = makeOptTags(o);
+          const optStr = tags.filter(t => !t.text.startsWith('📝')).map(t => t.text).join('/') || '기본';
+          const memo = tags.find(t => t.text.startsWith('📝'));
+          lines.push(`   ${optStr} × ${count}  (${names.join(', ')})${memo ? '  ' + memo.text : ''}`);
+        });
       });
     });
     lines.push('');
   });
-  lines.push(`📊 총 ${orders.length}건`);
+  lines.push(`📊 전체 총 ${orders.length}건`);
   document.getElementById('copy-box').textContent = lines.join('\n');
   document.getElementById('copy-area').style.display = 'block';
 }
