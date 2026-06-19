@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>팀 음료 주문</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #F7F5F0; --ink: #1C1C1C; --muted: #6B6B6B;
+    --border: #E0DDD7; --white: #FFFFFF; --red: #C0392B;
+    --brand: #00704A; --brand-dark: #1E3932; --brand-light: #D4E9E2; --brand-gold: #CBA258;
+  }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+  .brand-bar { display: flex; background: #111; padding: 10px 16px; gap: 10px; }
+  .brand-btn {
+    flex: 1; padding: 9px 10px; border-radius: 10px; border: 2px solid transparent;
+    font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .brand-btn.sb { background: #1E3932; color: #fff; }
+  .brand-btn.ts { background: #222; color: #aaa; }
+  .brand-btn.sb.active { border-color: #00A862; }
+  .brand-btn.ts.active { background: #C8102E; color: #fff; border-color: #ff4d6d; }
+
+  header {
+    background: var(--brand-dark); color: #fff; padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 100; transition: background 0.3s;
+  }
+  .logo-icon { font-size: 26px; }
+  .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-sub  { font-size: 11px; opacity: 0.6; font-weight: 300; }
+
+  .tabs { display: flex; background: var(--brand-dark); border-top: 1px solid rgba(255,255,255,0.1); transition: background 0.3s; }
+  .tab {
+    flex: 1; padding: 12px; text-align: center; font-size: 13px; font-weight: 500;
+    color: rgba(255,255,255,0.5); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
+  }
+  .tab.active { color: #fff; border-bottom-color: var(--brand-gold); }
+
+  .screen { display: none; padding: 18px; max-width: 480px; margin: 0 auto; }
+  .screen.active { display: block; }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--brand); margin-bottom: 10px; transition: color 0.3s;
+  }
+
+  .input-field {
+    width: 100%; padding: 12px 14px; font-family: inherit; font-size: 15px;
+    border: 1.5px solid var(--border); border-radius: 10px; background: var(--white);
+    outline: none; transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--brand); }
+  .name-block { margin-bottom: 22px; }
+
+  .search-bar { position: relative; margin-bottom: 14px; }
+  .search-bar input { padding-left: 38px; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+
+  .chips { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; flex-wrap: nowrap; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; padding: 6px 13px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    border: 1.5px solid var(--border); background: var(--white); cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+  .menu-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+  .menu-item {
+    background: var(--white); border-radius: 12px; padding: 13px 14px;
+    display: flex; align-items: center; gap: 11px;
+    cursor: pointer; border: 1.5px solid var(--border); transition: all 0.15s;
+  }
+  .menu-item:hover { border-color: var(--brand); }
+  .menu-item.selected { border-color: var(--brand); background: var(--brand-light); }
+  .menu-emoji { font-size: 26px; width: 38px; text-align: center; flex-shrink: 0; }
+  .menu-info  { flex: 1; min-width: 0; }
+  .menu-name    { font-size: 14px; font-weight: 500; margin-bottom: 1px; }
+  .menu-name-en { font-size: 11px; color: var(--muted); }
+  .menu-check {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 12px; transition: all 0.15s;
+  }
+  .menu-item.selected .menu-check { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+  .options-panel {
+    background: var(--white); border-radius: 14px; padding: 16px;
+    margin-bottom: 22px; border: 1.5px solid var(--brand-light);
+  }
+  .options-title { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 13px; }
+  .option-group  { margin-bottom: 13px; }
+  .option-label  { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.4px; margin-bottom: 7px; }
+  .option-btns   { display: flex; gap: 7px; flex-wrap: wrap; }
+  .opt-btn {
+    padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 500;
+    font-family: inherit; border: 1.5px solid var(--border); background: var(--white);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .opt-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .memo-input { margin-top: 5px; font-size: 13px; resize: none; height: 56px; }
+
+  .btn-submit {
+    width: 100%; padding: 14px; background: var(--brand); color: #fff;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    border: none; border-radius: 12px; cursor: pointer; transition: opacity 0.2s; letter-spacing: -0.3px;
+  }
+  .btn-submit:hover { opacity: 0.9; }
+  .btn-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── Summary ── */
+  .summary-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .summary-count { font-size: 21px; font-weight: 700; }
+  .summary-count span { color: var(--brand); }
+  .btn-copy {
+    padding: 8px 15px; background: var(--brand-gold); color: #fff;
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    border: none; border-radius: 8px; cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-copy:hover { opacity: 0.85; }
+
+  /* ── Group block (핵심 개선) ── */
+  .group-block { background: var(--white); border-radius: 14px; border: 1.5px solid var(--brand-light); margin-bottom: 18px; overflow: hidden; }
+  .group-block-header {
+    color: #fff; padding: 10px 15px; font-size: 13px; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .total-badge { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 2px 10px; font-size: 12px; }
+
+  .menu-subheader {
+    padding: 9px 15px 5px;
+    background: #f4f4f2;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .menu-subheader .menu-total { font-size: 12px; }
+
+  .group-row { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid var(--border); gap: 8px; }
+  .group-row:last-child { border-bottom: none; }
+  .group-row-opts { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .opt-tag {
+    display: inline-block; background: var(--cream); border-radius: 5px;
+    padding: 2px 8px; font-size: 11px; color: var(--muted); white-space: nowrap;
+  }
+  .opt-tag.highlight { background: #fff3cd; color: #856404; font-weight: 600; }
+  .group-row-names { font-size: 11px; color: var(--muted); flex-shrink: 0; max-width: 110px; text-align: right; line-height: 1.5; }
+  .group-row-count { font-size: 16px; font-weight: 700; color: var(--brand); flex-shrink: 0; min-width: 32px; text-align: right; }
+
+  /* ── Individual cards ── */
+  .order-cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .order-card { background: var(--white); border-radius: 12px; padding: 13px 15px; border: 1.5px solid var(--border); }
+  .order-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+  .order-person { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .order-brand-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; }
+  .badge-sb { background: #D4E9E2; color: #00704A; }
+  .badge-ts { background: #ffe0e4; color: #C8102E; }
+  .order-menu-name { font-size: 13px; color: var(--brand); font-weight: 500; }
+  .order-opts { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .btn-delete { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 2px 5px; }
+  .btn-delete:hover { color: var(--red); }
+
+  .copy-box {
+    background: #1a1a2e; color: #e8e8e8; border-radius: 12px; padding: 16px;
+    font-size: 12px; line-height: 2; white-space: pre-wrap; word-break: keep-all; margin-bottom: 10px;
+  }
+  .btn-clear {
+    width: 100%; padding: 12px; background: none; color: var(--red);
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    border: 1.5px solid #f5c6c2; border-radius: 10px; cursor: pointer; margin-top: 4px;
+  }
+  .btn-clear:hover { background: #fff0ef; }
+
+  .empty-state { text-align: center; padding: 44px 20px; color: var(--muted); }
+  .empty-state .empty-icon { font-size: 38px; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; }
+
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #222; color: #fff; padding: 11px 22px; border-radius: 30px;
+    font-size: 13px; font-weight: 500; transition: transform 0.3s ease; z-index: 999; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="brand-bar">
+  <button class="brand-btn sb active" id="btn-brand-sb" onclick="setBrand('sb')">☕ 스타벅스</button>
+  <button class="brand-btn ts" id="btn-brand-ts" onclick="setBrand('ts')">🎂 투썸플레이스</button>
+</div>
+
+<header id="main-header">
+  <div class="logo-icon" id="logo-icon">☕</div>
+  <div>
+    <div class="logo-text" id="logo-text">스타벅스 팀 주문</div>
+    <div class="logo-sub"  id="logo-sub">Starbucks Team Order</div>
+  </div>
+</header>
+
+<div class="tabs" id="main-tabs">
+  <div class="tab active" onclick="switchTab('order')">☕ 메뉴 신청</div>
+  <div class="tab" onclick="switchTab('summary')">📋 주문 취합</div>
+</div>
+
+<!-- ORDER -->
+<div id="screen-order" class="screen active">
+  <div class="name-block">
+    <div class="section-label">이름</div>
+    <input class="input-field" id="input-name" type="text" placeholder="이름을 입력하세요" maxlength="10">
+  </div>
+  <div class="section-label">메뉴 선택</div>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input class="input-field" id="menu-search" type="text" placeholder="메뉴 검색" oninput="filterMenu()">
+  </div>
+  <div class="chips" id="category-chips"></div>
+  <div class="menu-list" id="menu-list"></div>
+  <div id="options-panel" class="options-panel" style="display:none">
+    <div class="options-title">☑ 옵션 선택</div>
+    <div class="option-group">
+      <div class="option-label">온도</div>
+      <div class="option-btns" id="opt-temp"></div>
+    </div>
+    <div class="option-group">
+      <div class="option-label">사이즈</div>
+      <div class="option-btns" id="opt-size"></div>
+    </div>
+    <div class="option-group" id="opt-shot-group">
+      <div class="option-label">샷</div>
+      <div class="option-btns" id="opt-shot"></div>
+    </div>
+    <div class="option-group" id="opt-sweet-group">
+      <div class="option-label">당도</div>
+      <div class="option-btns" id="opt-sweet"></div>
+    </div>
+    <div class="option-group">
+      <div class="option-label">메모 (선택)</div>
+      <textarea class="input-field memo-input" id="opt-memo" placeholder="예: 얼음 적게, 두유 변경 등"></textarea>
+    </div>
+  </div>
+  <button class="btn-submit" id="btn-submit" onclick="submitOrder()" disabled>주문 신청하기</button>
+</div>
+
+<!-- SUMMARY -->
+<div id="screen-summary" class="screen">
+  <div class="summary-top">
+    <div class="summary-count">총 <span id="order-count">0</span>건</div>
+    <button class="btn-copy" onclick="copyOrders()">📋 복사하기</button>
+  </div>
+  <div id="group-summary-area"></div>
+  <div class="section-label" style="margin-bottom:10px">개별 주문 목록</div>
+  <div class="order-cards" id="order-cards"></div>
+  <div id="copy-area" style="display:none">
+    <div class="section-label" style="margin-bottom:8px">복사 텍스트</div>
+    <div class="copy-box" id="copy-box"></div>
+  </div>
+  <button class="btn-clear" onclick="clearAll()">🗑 전체 주문 초기화</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MENUS = {
+  sb: [
+    {id:1,  cat:'에스프레소',  emoji:'☕', name:'아메리카노',         en:'Americano',             temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:2,  cat:'에스프레소',  emoji:'☕', name:'카페 라떼',          en:'Caffe Latte',           temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:3,  cat:'에스프레소',  emoji:'☕', name:'카푸치노',            en:'Cappuccino',            temps:['HOT'],        sizes:['Tall','Grande'],         shot:true,  sweet:false},
+    {id:4,  cat:'에스프레소',  emoji:'☕', name:'카라멜 마키아또',     en:'Caramel Macchiato',     temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:5,  cat:'에스프레소',  emoji:'☕', name:'바닐라 라떼',         en:'Vanilla Latte',         temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:6,  cat:'에스프레소',  emoji:'☕', name:'돌체 라떼',           en:'Dolce Latte',           temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:7,  cat:'에스프레소',  emoji:'☕', name:'카페 모카',           en:'Caffe Mocha',           temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:8,  cat:'에스프레소',  emoji:'☕', name:'화이트 초콜릿 모카',  en:'White Chocolate Mocha', temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:9,  cat:'에스프레소',  emoji:'☕', name:'플랫 화이트',         en:'Flat White',            temps:['HOT'],        sizes:['Tall'],                  shot:true,  sweet:false},
+    {id:10, cat:'에스프레소',  emoji:'☕', name:'에스프레소',          en:'Espresso',              temps:['HOT'],        sizes:['Solo','Doppio'],         shot:false, sweet:false},
+    {id:20, cat:'콜드브루',    emoji:'🧊', name:'콜드 브루',           en:'Cold Brew',             temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
+    {id:21, cat:'콜드브루',    emoji:'🧊', name:'돌체 콜드 브루',      en:'Dolce Cold Brew',       temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:22, cat:'콜드브루',    emoji:'🧊', name:'바닐라 크림 콜드 브루',en:'Vanilla Cream Cold Brew',temps:['ICED'],sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
+    {id:23, cat:'콜드브루',    emoji:'🧊', name:'질소 콜드 브루',      en:'Nitro Cold Brew',       temps:['ICED'], sizes:['Tall','Grande'],         shot:false, sweet:false},
+    {id:30, cat:'프라푸치노',  emoji:'🥤', name:'자바 칩 프라푸치노',  en:'Java Chip Frappuccino', temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:31, cat:'프라푸치노',  emoji:'🥤', name:'카라멜 프라푸치노',   en:'Caramel Frappuccino',   temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:32, cat:'프라푸치노',  emoji:'🥤', name:'그린티 프라푸치노',   en:'Green Tea Frappuccino', temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:33, cat:'프라푸치노',  emoji:'🥤', name:'모카 프라푸치노',     en:'Mocha Frappuccino',     temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:34, cat:'프라푸치노',  emoji:'🥤', name:'스트로베리 프라푸치노',en:'Strawberry Frappuccino',temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:40, cat:'티·음료',     emoji:'🍵', name:'민트 블렌드 티',      en:'Mint Blend Tea',        temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:41, cat:'티·음료',     emoji:'🍵', name:'잉글리시 브렉퍼스트 티',en:'English Breakfast Tea',temps:['HOT','ICED'],sizes:['Tall','Grande','Venti'],shot:false, sweet:true},
+    {id:42, cat:'티·음료',     emoji:'🍵', name:'그린티 라떼',         en:'Green Tea Latte',       temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:43, cat:'티·음료',     emoji:'🍵', name:'차이 티 라떼',        en:'Chai Tea Latte',        temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:50, cat:'초콜릿·기타', emoji:'🍫', name:'핫 초콜릿',           en:'Hot Chocolate',         temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:51, cat:'초콜릿·기타', emoji:'🍫', name:'스팀 우유',           en:'Steamed Milk',          temps:['HOT'],        sizes:['Tall','Grande'],         shot:false, sweet:false},
+  ],
+  ts: [
+    {id:101,cat:'커피',        emoji:'☕', name:'아메리카노',          en:'Americano',             temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:102,cat:'커피',        emoji:'☕', name:'카페 라떼',           en:'Caffe Latte',           temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:103,cat:'커피',        emoji:'☕', name:'카푸치노',            en:'Cappuccino',            temps:['HOT'],        sizes:['Regular'],         shot:true,  sweet:false},
+    {id:104,cat:'커피',        emoji:'☕', name:'바닐라 라떼',         en:'Vanilla Latte',         temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:105,cat:'커피',        emoji:'☕', name:'카라멜 마끼아또',     en:'Caramel Macchiato',     temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:106,cat:'커피',        emoji:'☕', name:'에스프레소',          en:'Espresso',              temps:['HOT'],        sizes:['Single','Double'], shot:false, sweet:false},
+    {id:107,cat:'커피',        emoji:'☕', name:'콜드 브루',           en:'Cold Brew',             temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:false},
+    {id:108,cat:'커피',        emoji:'☕', name:'달고나 라떼',         en:'Dalgona Latte',         temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:109,cat:'커피',        emoji:'☕', name:'흑임자 라떼',         en:'Black Sesame Latte',    temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:120,cat:'논커피',      emoji:'🍵', name:'그린티 라떼',         en:'Green Tea Latte',       temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:121,cat:'논커피',      emoji:'🍵', name:'초콜릿 라떼',         en:'Chocolate Latte',       temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:122,cat:'논커피',      emoji:'🍵', name:'얼그레이 밀크티',     en:'Earl Grey Milk Tea',    temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:123,cat:'논커피',      emoji:'🍵', name:'루이보스 밀크티',     en:'Rooibos Milk Tea',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:124,cat:'논커피',      emoji:'🍵', name:'캐모마일 티',         en:'Chamomile Tea',         temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:125,cat:'논커피',      emoji:'🍵', name:'딸기 라떼',           en:'Strawberry Latte',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:140,cat:'스무디·에이드',emoji:'🥤', name:'딸기 스무디',        en:'Strawberry Smoothie',   temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:141,cat:'스무디·에이드',emoji:'🥤', name:'망고 스무디',        en:'Mango Smoothie',        temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:142,cat:'스무디·에이드',emoji:'🥤', name:'블루베리 스무디',    en:'Blueberry Smoothie',    temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:143,cat:'스무디·에이드',emoji:'🥤', name:'자몽 에이드',        en:'Grapefruit Ade',        temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:144,cat:'스무디·에이드',emoji:'🥤', name:'레몬 에이드',        en:'Lemon Ade',             temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:145,cat:'스무디·에이드',emoji:'🥤', name:'청포도 에이드',      en:'Green Grape Ade',       temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:160,cat:'케이크·디저트',emoji:'🎂', name:'딸기 생크림 케이크', en:'Strawberry Cream Cake', temps:['—'], sizes:['조각'], shot:false, sweet:false},
+    {id:161,cat:'케이크·디저트',emoji:'🎂', name:'티라미수 케이크',    en:'Tiramisu Cake',         temps:['—'], sizes:['조각'], shot:false, sweet:false},
+    {id:162,cat:'케이크·디저트',emoji:'🎂', name:'치즈케이크',         en:'Cheesecake',            temps:['—'], sizes:['조각'], shot:false, sweet:false},
+    {id:163,cat:'케이크·디저트',emoji:'🍩', name:'크로플',             en:'Croffle',               temps:['—'], sizes:['1개'],  shot:false, sweet:false},
+    {id:164,cat:'케이크·디저트',emoji:'🍩', name:'스콘',               en:'Scone',                 temps:['—'], sizes:['1개'],  shot:false, sweet:false},
+  ]
+};
+
+const SHOTS  = ['기본', '+1샷', '+2샷'];
+const SWEETS = ['기본', '시럽 반만', '시럽 없이'];
+const BRAND_CFG = {
+  sb: { label:'스타벅스 팀 주문', sub:'Starbucks Team Order', icon:'☕', color:'#00704A', dark:'#1E3932', light:'#D4E9E2', gold:'#CBA258' },
+  ts: { label:'투썸 팀 주문',     sub:'A Twosome Place Order', icon:'🎂', color:'#C8102E', dark:'#8B0000', light:'#ffe0e4', gold:'#E8A020' },
+};
+
+let currentBrand = 'sb';
+let orders = JSON.parse(localStorage.getItem('teamOrders2') || '[]');
+let selectedMenu = null;
+let currentCat   = '전체';
+let options = { temp:'', size:'', shot:'기본', sweet:'기본' };
+
+function init() {
+  applyBrandCSS('sb');
+  renderChips();
+  renderMenu();
+  renderSummary();
+}
+
+function setBrand(brand) {
+  currentBrand = brand;
+  selectedMenu = null;
+  currentCat   = '전체';
+  options = { temp:'', size:'', shot:'기본', sweet:'기본' };
+  document.getElementById('options-panel').style.display = 'none';
+  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('menu-search').value = '';
+  document.getElementById('btn-brand-sb').classList.toggle('active', brand === 'sb');
+  document.getElementById('btn-brand-ts').classList.toggle('active', brand === 'ts');
+  applyBrandCSS(brand);
+  renderChips();
+  renderMenu();
+}
+
+function applyBrandCSS(brand) {
+  const cfg = BRAND_CFG[brand];
+  const r = document.documentElement;
+  r.style.setProperty('--brand',       cfg.color);
+  r.style.setProperty('--brand-dark',  cfg.dark);
+  r.style.setProperty('--brand-light', cfg.light);
+  r.style.setProperty('--brand-gold',  cfg.gold);
+  document.getElementById('main-header').style.background = cfg.dark;
+  document.getElementById('main-tabs').style.background   = cfg.dark;
+  document.getElementById('logo-icon').textContent = cfg.icon;
+  document.getElementById('logo-text').textContent = cfg.label;
+  document.getElementById('logo-sub').textContent  = cfg.sub;
+}
+
+function getMenus() { return MENUS[currentBrand]; }
+
+function renderChips() {
+  const cats = ['전체', ...new Set(getMenus().map(m => m.cat))];
+  const el = document.getElementById('category-chips');
+  el.innerHTML = '';
+  cats.forEach(cat => {
+    const d = document.createElement('div');
+    d.className = 'chip' + (cat === currentCat ? ' active' : '');
+    d.textContent = cat;
+    d.onclick = () => { currentCat = cat; renderChips(); renderMenu(); };
+    el.appendChild(d);
+  });
+}
+
+function filterMenu() { renderMenu(); }
+
+function renderMenu() {
+  const q = document.getElementById('menu-search').value.trim().toLowerCase();
+  const list = getMenus().filter(m => {
+    const catOk = currentCat === '전체' || m.cat === currentCat;
+    const qOk   = !q || m.name.includes(q) || m.en.toLowerCase().includes(q);
+    return catOk && qOk;
+  });
+  const el = document.getElementById('menu-list');
+  el.innerHTML = '';
+  list.forEach(m => {
+    const isSelected = selectedMenu?.id === m.id && selectedMenu?.brand === currentBrand;
+    const div = document.createElement('div');
+    div.className = 'menu-item' + (isSelected ? ' selected' : '');
+    div.innerHTML = `
+      <div class="menu-emoji">${m.emoji}</div>
+      <div class="menu-info">
+        <div class="menu-name">${m.name}</div>
+        <div class="menu-name-en">${m.en}</div>
+      </div>
+      <div class="menu-check">${isSelected ? '✓' : ''}</div>`;
+    div.onclick = () => selectMenu(m);
+    el.appendChild(div);
+  });
+}
+
+function selectMenu(m) {
+  selectedMenu = { ...m, brand: currentBrand };
+  renderMenu();
+  options = { temp:'', size:'', shot:'기본', sweet:'기본' };
+
+  const tempEl = document.getElementById('opt-temp');
+  const labels = { HOT:'🔴 HOT', ICED:'🔵 ICED', BLENDED:'🟣 블렌디드', '—':'해당없음' };
+  tempEl.innerHTML = '';
+  m.temps.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = labels[t] || t;
+    btn.onclick = () => { options.temp = t; setActive(tempEl, btn); checkSubmit(); };
+    tempEl.appendChild(btn);
+  });
+  if (m.temps.length === 1) { options.temp = m.temps[0]; tempEl.querySelector('.opt-btn').classList.add('active'); }
+
+  const sizeEl = document.getElementById('opt-size');
+  sizeEl.innerHTML = '';
+  m.sizes.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = s;
+    btn.onclick = () => { options.size = s; setActive(sizeEl, btn); checkSubmit(); };
+    sizeEl.appendChild(btn);
+  });
+  if (m.sizes.length === 1) { options.size = m.sizes[0]; sizeEl.querySelector('.opt-btn').classList.add('active'); }
+
+  document.getElementById('opt-shot-group').style.display  = m.shot  ? 'block' : 'none';
+  document.getElementById('opt-sweet-group').style.display = m.sweet ? 'block' : 'none';
+  if (m.shot)  renderOptBtns('opt-shot',  SHOTS,  'shot');
+  if (m.sweet) renderOptBtns('opt-sweet', SWEETS, 'sweet');
+
+  document.getElementById('opt-memo').value = '';
+  document.getElementById('options-panel').style.display = 'block';
+  checkSubmit();
+  setTimeout(() => document.getElementById('options-panel').scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+}
+
+function renderOptBtns(id, list, key) {
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  list.forEach((item, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = item;
+    btn.onclick = () => { options[key] = item; setActive(el, btn); checkSubmit(); };
+    el.appendChild(btn);
+  });
+  options[key] = list[0];
+}
+
+function setActive(parent, btn) {
+  parent.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function checkSubmit() {
+  const name = document.getElementById('input-name').value.trim();
+  const needsTemp = selectedMenu && selectedMenu.temps[0] !== '—';
+  const ok = name && selectedMenu && (!needsTemp || options.temp) && options.size;
+  document.getElementById('btn-submit').disabled = !ok;
+}
+
+document.getElementById('input-name').addEventListener('input', checkSubmit);
+
+function submitOrder() {
+  const name = document.getElementById('input-name').value.trim();
+  const memo = document.getElementById('opt-memo').value.trim();
+  const m = selectedMenu;
+  orders.push({
+    id: Date.now(), brand: currentBrand, name,
+    menuName: m.name, emoji: m.emoji,
+    temp:  options.temp  || '',
+    size:  options.size  || '',
+    shot:  m.shot  ? options.shot  : '',
+    sweet: m.sweet ? options.sweet : '',
+    memo,
+    time: new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' })
+  });
+  saveOrders();
+  showToast(`${name}님 주문 완료! ✅`);
+  selectedMenu = null;
+  options = { temp:'', size:'', shot:'기본', sweet:'기본' };
+  document.getElementById('input-name').value = '';
+  document.getElementById('options-panel').style.display = 'none';
+  document.getElementById('menu-search').value = '';
+  document.getElementById('btn-submit').disabled = true;
+  renderMenu();
+  renderSummary();
+}
+
+// ── 옵션 레이블 생성 (비기본 옵션만 표시) ──
+function makeOptTags(o) {
+  const tags = [];
+  if (o.temp && o.temp !== '—') tags.push({ text: o.temp, highlight: false });
+  if (o.size) tags.push({ text: o.size, highlight: false });
+  if (o.shot  && o.shot  !== '기본') tags.push({ text: o.shot,  highlight: true });
+  if (o.sweet && o.sweet !== '기본') tags.push({ text: o.sweet, highlight: true });
+  if (o.memo) tags.push({ text: '📝 ' + o.memo, highlight: false });
+  return tags;
+}
+
+// 동일 주문 판별 키 (메뉴 + 모든 옵션)
+function orderKey(o) {
+  return [o.brand, o.menuName, o.temp, o.size, o.shot || '', o.sweet || '', o.memo || ''].join('|');
+}
+
+function renderSummary() {
+  document.getElementById('order-count').textContent = orders.length;
+  const cards     = document.getElementById('order-cards');
+  const groupArea = document.getElementById('group-summary-area');
+  cards.innerHTML = '';
+  groupArea.innerHTML = '';
+
+  if (orders.length === 0) {
+    cards.innerHTML = `<div class="empty-state"><div class="empty-icon">☕</div><p>아직 신청된 주문이 없어요</p></div>`;
+    document.getElementById('copy-area').style.display = 'none';
+    return;
+  }
+
+  // ── 메뉴 요약: 브랜드 > 메뉴명 > 옵션 단위로 그룹 ──
+  const brandMap = {};
+  orders.forEach(o => {
+    if (!brandMap[o.brand]) brandMap[o.brand] = {};
+    const mk = `${o.emoji} ${o.menuName}`;
+    if (!brandMap[o.brand][mk]) brandMap[o.brand][mk] = {};
+    const ok = orderKey(o);
+    if (!brandMap[o.brand][mk][ok]) brandMap[o.brand][mk][ok] = { o, names: [], count: 0 };
+    brandMap[o.brand][mk][ok].names.push(o.name);
+    brandMap[o.brand][mk][ok].count++;
+  });
+
+  Object.entries(brandMap).forEach(([brand, menus]) => {
+    const cfg   = BRAND_CFG[brand];
+    const total = orders.filter(o => o.brand === brand).length;
+    const block = document.createElement('div');
+    block.className = 'group-block';
+    let html = `<div class="group-block-header" style="background:${cfg.color}">
+      <span>${cfg.icon} ${cfg.label.replace(' 팀 주문','')}</span>
+      <span class="total-badge">총 ${total}잔</span>
+    </div>`;
+
+    Object.entries(menus).forEach(([menuKey, optMap]) => {
+      const menuTotal = Object.values(optMap).reduce((s,v) => s + v.count, 0);
+      html += `<div class="menu-subheader">
+        <span>${menuKey}</span>
+        <span class="menu-total" style="color:${cfg.color}">${menuTotal}잔</span>
+      </div>`;
+
+      Object.values(optMap).forEach(({ o, names, count }) => {
+        const tags = makeOptTags(o);
+        const tagHtml = tags.length
+          ? tags.map(t => `<span class="opt-tag${t.highlight ? ' highlight' : ''}">${t.text}</span>`).join('')
+          : `<span class="opt-tag">기본 옵션</span>`;
+        html += `<div class="group-row">
+          <div class="group-row-opts">${tagHtml}</div>
+          <div class="group-row-names">${names.join('<br>')}</div>
+          <div class="group-row-count">×${count}</div>
+        </div>`;
+      });
+    });
+
+    block.innerHTML = html;
+    groupArea.appendChild(block);
+  });
+
+  // ── 개별 카드 ──
+  orders.forEach((o, i) => {
+    const tags = makeOptTags(o);
+    const tagStr = tags.map(t => t.text).join(' · ') || '기본 옵션';
+    const badgeClass = o.brand === 'sb' ? 'badge-sb' : 'badge-ts';
+    const brandLabel = o.brand === 'sb' ? '스타벅스' : '투썸';
+    const card = document.createElement('div');
+    card.className = 'order-card';
+    card.innerHTML = `
+      <div class="order-card-top">
+        <span class="order-person">${o.name}<span class="order-brand-badge ${badgeClass}">${brandLabel}</span></span>
+        <button class="btn-delete" onclick="deleteOrder(${i})">✕</button>
+      </div>
+      <div class="order-menu-name">${o.emoji} ${o.menuName}</div>
+      <div class="order-opts">${tagStr} <span style="color:#ccc;margin-left:4px">${o.time}</span></div>`;
+    cards.appendChild(card);
+  });
+
+  // ── 복사 텍스트 ──
+  const lines = [];
+  Object.entries(brandMap).forEach(([brand, menus]) => {
+    const cfg = BRAND_CFG[brand];
+    lines.push(`${cfg.icon} [${cfg.label.replace(' 팀 주문','')}]`);
+    Object.entries(menus).forEach(([menuKey, optMap]) => {
+      lines.push(`▸ ${menuKey}`);
+      Object.values(optMap).forEach(({ o, names, count }) => {
+        const tags = makeOptTags(o).map(t => t.text).filter(t => !t.startsWith('📝'));
+        const memo = makeOptTags(o).find(t => t.text.startsWith('📝'));
+        const optStr = tags.join(' / ') || '기본';
+        lines.push(`   ${optStr} × ${count}  (${names.join(', ')})${memo ? '  ' + memo.text : ''}`);
+      });
+    });
+    lines.push('');
+  });
+  lines.push(`📊 총 ${orders.length}건`);
+  document.getElementById('copy-box').textContent = lines.join('\n');
+  document.getElementById('copy-area').style.display = 'block';
+}
+
+function deleteOrder(i) {
+  orders.splice(i, 1);
+  saveOrders();
+  renderSummary();
+  showToast('주문이 삭제되었습니다');
+}
+
+function clearAll() {
+  if (!confirm('전체 주문을 초기화할까요?')) return;
+  orders = [];
+  saveOrders();
+  renderSummary();
+  showToast('초기화 완료');
+}
+
+function copyOrders() {
+  navigator.clipboard.writeText(document.getElementById('copy-box').textContent)
+    .then(() => showToast('클립보드에 복사됐어요 📋'));
+}
+
+function saveOrders() { localStorage.setItem('teamOrders2', JSON.stringify(orders)); }
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i===0 && tab==='order') || (i===1 && tab==='summary'));
+  });
+  document.getElementById('screen-order').classList.toggle('active', tab==='order');
+  document.getElementById('screen-summary').classList.toggle('active', tab==='summary');
+  if (tab === 'summary') renderSummary();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
