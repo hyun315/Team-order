@@ -256,10 +256,11 @@
 
 <header id="main-header">
   <div class="logo-icon" id="logo-icon">☕</div>
-  <div>
+  <div style="flex:1">
     <div class="logo-text" id="logo-text">스타벅스 팀 주문</div>
     <div class="logo-sub" id="logo-sub"><span class="live-dot"></span> 실시간 공유 중</div>
   </div>
+  <div style="font-size:11px; font-weight:700; opacity:0.55; letter-spacing:0.5px;">by HJ</div>
 </header>
 
 <div class="tabs" id="main-tabs">
@@ -269,21 +270,17 @@
 
 <!-- ORDER -->
 <div id="screen-order" class="screen active">
-  <div class="name-block" style="display:none">
+  <div class="name-block">
     <div class="section-label">소속(팀명)</div>
     <div class="team-chip-row" id="team-chips"></div>
     <div class="name-row">
       <div>
-        <input class="input-field" id="input-team" type="text" placeholder="직접 입력 (예: 영업1팀)" maxlength="14" value="미지정">
+        <input class="input-field" id="input-team" type="text" placeholder="직접 입력 (예: 영업1팀)" maxlength="14">
       </div>
       <div>
-        <input class="input-field" id="input-name-hidden-placeholder" type="text" style="display:none">
+        <input class="input-field" id="input-name" type="text" placeholder="이름" maxlength="10">
       </div>
     </div>
-  </div>
-  <div class="name-block">
-    <div class="section-label">이름</div>
-    <input class="input-field" id="input-name" type="text" placeholder="이름을 입력하세요" maxlength="10">
   </div>
   <div class="section-label">메뉴 선택</div>
   <div class="search-bar">
@@ -448,6 +445,7 @@ document.getElementById('input-team').addEventListener('input', renderTeamChips)
 // ── 초기화 ───────────────────────────────────────────
 function init() {
   applyBrandCSS('sb');
+  document.getElementById('input-team').value = '여의도지점';
   renderTeamChips();
   renderChips();
   renderMenu();
