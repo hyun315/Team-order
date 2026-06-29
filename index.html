@@ -64,8 +64,10 @@
   }
   .brand-btn.sb { background: #1E3932; color: #fff; }
   .brand-btn.ts { background: #222; color: #aaa; }
+  .brand-btn.pb { background: #222; color: #aaa; }
   .brand-btn.sb.active { border-color: #00A862; }
   .brand-btn.ts.active { background: #C8102E; color: #fff; border-color: #ff4d6d; }
+  .brand-btn.pb.active { background: #3D2B1F; color: #fff; border-color: #B8860B; }
 
   header {
     background: var(--brand-dark); color: #fff; padding: 14px 18px;
@@ -252,6 +254,7 @@
 <div class="brand-bar">
   <button class="brand-btn sb active" id="btn-brand-sb" onclick="setBrand('sb')">☕ 스타벅스</button>
   <button class="brand-btn ts"        id="btn-brand-ts" onclick="setBrand('ts')">🎂 투썸플레이스</button>
+  <button class="brand-btn pb"        id="btn-brand-pb" onclick="setBrand('pb')">🫘 폴바셋</button>
 </div>
 
 <header id="main-header">
@@ -326,75 +329,134 @@
 // ── 메뉴 데이터 ──────────────────────────────────────
 const MENUS = {
   sb: [
-    {id:1,  cat:'에스프레소',  emoji:'☕', name:'아메리카노',           en:'Americano',             temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:2,  cat:'에스프레소',  emoji:'☕', name:'카페 라떼',            en:'Caffe Latte',           temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:3,  cat:'에스프레소',  emoji:'☕', name:'카푸치노',             en:'Cappuccino',            temps:['HOT'],        sizes:['Tall','Grande'],         shot:true,  sweet:false},
-    {id:4,  cat:'에스프레소',  emoji:'☕', name:'카라멜 마키아또',      en:'Caramel Macchiato',     temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:5,  cat:'에스프레소',  emoji:'☕', name:'바닐라 라떼',          en:'Vanilla Latte',         temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:6,  cat:'에스프레소',  emoji:'☕', name:'돌체 라떼',            en:'Dolce Latte',           temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:7,  cat:'에스프레소',  emoji:'☕', name:'카페 모카',            en:'Caffe Mocha',           temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:8,  cat:'에스프레소',  emoji:'☕', name:'화이트 초콜릿 모카',   en:'White Chocolate Mocha', temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:9,  cat:'에스프레소',  emoji:'☕', name:'플랫 화이트',          en:'Flat White',            temps:['HOT'],        sizes:['Tall'],                  shot:true,  sweet:false},
-    {id:10, cat:'에스프레소',  emoji:'☕', name:'에스프레소',           en:'Espresso',              temps:['HOT'],        sizes:['Solo','Doppio'],         shot:false, sweet:false},
-    {id:20, cat:'콜드브루',    emoji:'🧊', name:'콜드 브루',            en:'Cold Brew',             temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
-    {id:21, cat:'콜드브루',    emoji:'🧊', name:'돌체 콜드 브루',       en:'Dolce Cold Brew',       temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:22, cat:'콜드브루',    emoji:'🧊', name:'바닐라 크림 콜드 브루',en:'Vanilla Cream Cold Brew',temps:['ICED'],sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
-    {id:23, cat:'콜드브루',    emoji:'🧊', name:'질소 콜드 브루',       en:'Nitro Cold Brew',       temps:['ICED'], sizes:['Tall','Grande'],         shot:false, sweet:false},
-    {id:30, cat:'프라푸치노',  emoji:'🥤', name:'자바 칩 프라푸치노',   en:'Java Chip Frappuccino', temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:31, cat:'프라푸치노',  emoji:'🥤', name:'카라멜 프라푸치노',    en:'Caramel Frappuccino',   temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:32, cat:'프라푸치노',  emoji:'🥤', name:'그린티 프라푸치노',    en:'Green Tea Frappuccino', temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:33, cat:'프라푸치노',  emoji:'🥤', name:'모카 프라푸치노',      en:'Mocha Frappuccino',     temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:34, cat:'프라푸치노',  emoji:'🥤', name:'스트로베리 프라푸치노',en:'Strawberry Frappuccino',temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:35, cat:'프라푸치노',  emoji:'🥤', name:'바닐라 크림 프라푸치노',en:'Vanilla Cream Frappuccino',temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    // 에스프레소
+    {id:1,  cat:'에스프레소',  emoji:'☕', name:'아메리카노',              en:'Americano',                    temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:2,  cat:'에스프레소',  emoji:'☕', name:'카페 라떼',               en:'Caffe Latte',                  temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:3,  cat:'에스프레소',  emoji:'☕', name:'카푸치노',                en:'Cappuccino',                   temps:['HOT'],        sizes:['Tall','Grande'],         shot:true,  sweet:false},
+    {id:4,  cat:'에스프레소',  emoji:'☕', name:'카라멜 마키아또',         en:'Caramel Macchiato',            temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:5,  cat:'에스프레소',  emoji:'☕', name:'바닐라 라떼',             en:'Vanilla Latte',                temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:6,  cat:'에스프레소',  emoji:'☕', name:'돌체 라떼',               en:'Dolce Latte',                  temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:7,  cat:'에스프레소',  emoji:'☕', name:'카페 모카',               en:'Caffe Mocha',                  temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:8,  cat:'에스프레소',  emoji:'☕', name:'화이트 초콜릿 모카',      en:'White Chocolate Mocha',        temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:9,  cat:'에스프레소',  emoji:'☕', name:'플랫 화이트',             en:'Flat White',                   temps:['HOT'],        sizes:['Tall'],                  shot:true,  sweet:false},
+    {id:11, cat:'에스프레소',  emoji:'☕', name:'시그니처 코르타도',       en:'Signature Cortado',            temps:['HOT','ICED'], sizes:['Tall'],                  shot:true,  sweet:false},
+    {id:10, cat:'에스프레소',  emoji:'☕', name:'에스프레소',              en:'Espresso',                     temps:['HOT'],        sizes:['Solo','Doppio'],         shot:false, sweet:false},
+    // 콜드브루
+    {id:20, cat:'콜드브루',    emoji:'🧊', name:'콜드 브루',               en:'Cold Brew',                    temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
+    {id:21, cat:'콜드브루',    emoji:'🧊', name:'돌체 콜드 브루',          en:'Dolce Cold Brew',              temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:22, cat:'콜드브루',    emoji:'🧊', name:'바닐라 크림 콜드 브루',   en:'Vanilla Cream Cold Brew',      temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
+    {id:23, cat:'콜드브루',    emoji:'🧊', name:'콜드 폼 콜드 브루',       en:'Cold Foam Cold Brew',          temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:24, cat:'콜드브루',    emoji:'🧊', name:'질소 콜드 브루',          en:'Nitro Cold Brew',              temps:['ICED'], sizes:['Tall','Grande'],         shot:false, sweet:false},
+    // 프라푸치노
+    {id:30, cat:'프라푸치노',  emoji:'🥤', name:'자바 칩 프라푸치노',      en:'Java Chip Frappuccino',        temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:31, cat:'프라푸치노',  emoji:'🥤', name:'카라멜 프라푸치노',       en:'Caramel Frappuccino',          temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:32, cat:'프라푸치노',  emoji:'🥤', name:'그린티 프라푸치노',       en:'Green Tea Frappuccino',        temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:33, cat:'프라푸치노',  emoji:'🥤', name:'모카 프라푸치노',         en:'Mocha Frappuccino',            temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
+    {id:34, cat:'프라푸치노',  emoji:'🥤', name:'스트로베리 프라푸치노',   en:'Strawberry Frappuccino',       temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:35, cat:'프라푸치노',  emoji:'🥤', name:'바닐라 크림 프라푸치노',  en:'Vanilla Cream Frappuccino',    temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
     {id:36, cat:'프라푸치노',  emoji:'🥤', name:'더블 에스프레소 칩 프라푸치노',en:'Double Espresso Chip Frappuccino',temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true, sweet:true},
-    {id:40, cat:'티·음료',     emoji:'🍵', name:'민트 블렌드 티',       en:'Mint Blend Tea',        temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:41, cat:'티·음료',     emoji:'🍵', name:'잉글리시 브렉퍼스트 티',en:'English Breakfast Tea',temps:['HOT','ICED'],sizes:['Tall','Grande','Venti'],shot:false, sweet:true},
-    {id:42, cat:'티·음료',     emoji:'🍵', name:'그린티 라떼',          en:'Green Tea Latte',       temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:43, cat:'티·음료',     emoji:'🍵', name:'차이 티 라떼',         en:'Chai Tea Latte',        temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:50, cat:'초콜릿·기타', emoji:'🍫', name:'핫 초콜릿',            en:'Hot Chocolate',         temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:51, cat:'초콜릿·기타', emoji:'🍫', name:'스팀 우유',            en:'Steamed Milk',          temps:['HOT'],        sizes:['Tall','Grande'],         shot:false, sweet:false},
+    // 티·음료
+    {id:40, cat:'티·음료',     emoji:'🍵', name:'민트 블렌드 티',          en:'Mint Blend Tea',               temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:41, cat:'티·음료',     emoji:'🍵', name:'잉글리시 브렉퍼스트 티',  en:'English Breakfast Tea',        temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:42, cat:'티·음료',     emoji:'🍵', name:'그린티 라떼',             en:'Green Tea Latte',              temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:43, cat:'티·음료',     emoji:'🍵', name:'차이 티 라떼',            en:'Chai Tea Latte',               temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:44, cat:'티·음료',     emoji:'🍵', name:'유스베리 티',             en:'Youthberry Tea',               temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:45, cat:'티·음료',     emoji:'🍵', name:'제주 말차 라떼',          en:'Jeju Matcha Latte',            temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    // 초콜릿·기타
+    {id:50, cat:'초콜릿·기타', emoji:'🍫', name:'핫 초콜릿',               en:'Hot Chocolate',                temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
+    {id:51, cat:'초콜릿·기타', emoji:'🍫', name:'스팀 우유',               en:'Steamed Milk',                 temps:['HOT'],        sizes:['Tall','Grande'],         shot:false, sweet:false},
   ],
   ts: [
-    {id:101,cat:'커피',         emoji:'☕', name:'아메리카노',      en:'Americano',          temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:102,cat:'커피',         emoji:'☕', name:'카페 라떼',       en:'Caffe Latte',        temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:103,cat:'커피',         emoji:'☕', name:'카푸치노',        en:'Cappuccino',         temps:['HOT'],        sizes:['Regular'],         shot:true,  sweet:false},
-    {id:104,cat:'커피',         emoji:'☕', name:'바닐라 라떼',     en:'Vanilla Latte',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:105,cat:'커피',         emoji:'☕', name:'카라멜 마끼아또', en:'Caramel Macchiato',  temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:106,cat:'커피',         emoji:'☕', name:'에스프레소',      en:'Espresso',           temps:['HOT'],        sizes:['Single','Double'], shot:false, sweet:false},
-    {id:107,cat:'커피',         emoji:'☕', name:'콜드 브루',       en:'Cold Brew',          temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:false},
-    {id:108,cat:'커피',         emoji:'☕', name:'달고나 라떼',     en:'Dalgona Latte',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:109,cat:'커피',         emoji:'☕', name:'흑임자 라떼',     en:'Black Sesame Latte', temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:120,cat:'논커피',       emoji:'🍵', name:'그린티 라떼',     en:'Green Tea Latte',    temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:121,cat:'논커피',       emoji:'🍵', name:'초콜릿 라떼',     en:'Chocolate Latte',    temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:122,cat:'논커피',       emoji:'🍵', name:'얼그레이 밀크티', en:'Earl Grey Milk Tea', temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:123,cat:'논커피',       emoji:'🍵', name:'루이보스 밀크티', en:'Rooibos Milk Tea',   temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:124,cat:'논커피',       emoji:'🍵', name:'캐모마일 티',     en:'Chamomile Tea',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:125,cat:'논커피',       emoji:'🍵', name:'딸기 라떼',       en:'Strawberry Latte',   temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:140,cat:'스무디·에이드',emoji:'🥤', name:'딸기 스무디',     en:'Strawberry Smoothie',temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:141,cat:'스무디·에이드',emoji:'🥤', name:'망고 스무디',     en:'Mango Smoothie',     temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:142,cat:'스무디·에이드',emoji:'🥤', name:'블루베리 스무디', en:'Blueberry Smoothie', temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:143,cat:'스무디·에이드',emoji:'🥤', name:'자몽 에이드',     en:'Grapefruit Ade',     temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:144,cat:'스무디·에이드',emoji:'🥤', name:'레몬 에이드',     en:'Lemon Ade',          temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:145,cat:'스무디·에이드',emoji:'🥤', name:'청포도 에이드',   en:'Green Grape Ade',    temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:150,cat:'쉐이크·프라페',emoji:'🥤', name:'초콜릿 쉐이크',      en:'Chocolate Shake',       temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:151,cat:'쉐이크·프라페',emoji:'🥤', name:'카페모카 프라페',    en:'Cafe Mocha Frappe',     temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:152,cat:'쉐이크·프라페',emoji:'🥤', name:'카라멜 프라페',      en:'Caramel Frappe',        temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:153,cat:'쉐이크·프라페',emoji:'🍨', name:'요거트 아이스 블렌디드', en:'Yogurt Ice Blended', temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:170,cat:'TWG 티',     emoji:'🍵', name:'TWG 크림카라멜 아이스티', en:'TWG Cream Caramel Iced Tea', temps:['ICED'], sizes:['Regular'], shot:false, sweet:true},
-    {id:171,cat:'TWG 티',     emoji:'🍵', name:'TWG 라즈베리 아이스티',   en:'TWG Raspberry Iced Tea',     temps:['ICED'], sizes:['Regular'], shot:false, sweet:true},
-    {id:160,cat:'케이크·디저트',emoji:'🎂', name:'딸기 생크림 케이크', en:'Strawberry Cream Cake', temps:['—'], sizes:['조각'], shot:false, sweet:false},
-    {id:161,cat:'케이크·디저트',emoji:'🎂', name:'티라미수 케이크',    en:'Tiramisu Cake',         temps:['—'], sizes:['조각'], shot:false, sweet:false},
-    {id:162,cat:'케이크·디저트',emoji:'🎂', name:'치즈케이크',         en:'Cheesecake',            temps:['—'], sizes:['조각'], shot:false, sweet:false},
-    {id:163,cat:'케이크·디저트',emoji:'🍩', name:'크로플',             en:'Croffle',               temps:['—'], sizes:['1개'],  shot:false, sweet:false},
-    {id:164,cat:'케이크·디저트',emoji:'🍩', name:'스콘',               en:'Scone',                 temps:['—'], sizes:['1개'],  shot:false, sweet:false},
+    // 커피
+    {id:101,cat:'커피',         emoji:'☕', name:'아메리카노',         en:'Americano',          temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:102,cat:'커피',         emoji:'☕', name:'카페 라떼',          en:'Caffe Latte',        temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:103,cat:'커피',         emoji:'☕', name:'카푸치노',           en:'Cappuccino',         temps:['HOT'],        sizes:['Regular'],         shot:true,  sweet:false},
+    {id:104,cat:'커피',         emoji:'☕', name:'바닐라 라떼',        en:'Vanilla Latte',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:105,cat:'커피',         emoji:'☕', name:'카라멜 마끼아또',    en:'Caramel Macchiato',  temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:106,cat:'커피',         emoji:'☕', name:'화이트 모카 라떼',   en:'White Mocha Latte',  temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:107,cat:'커피',         emoji:'☕', name:'콜드 브루',          en:'Cold Brew',          temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:false},
+    {id:108,cat:'커피',         emoji:'☕', name:'달고나 라떼',        en:'Dalgona Latte',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:109,cat:'커피',         emoji:'☕', name:'흑임자 라떼',        en:'Black Sesame Latte', temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:110,cat:'커피',         emoji:'☕', name:'에스프레소',         en:'Espresso',           temps:['HOT'],        sizes:['Single','Double'], shot:false, sweet:false},
+    // 논커피
+    {id:120,cat:'논커피',       emoji:'🍵', name:'그린티 라떼',        en:'Green Tea Latte',    temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:121,cat:'논커피',       emoji:'🍵', name:'초콜릿 라떼',        en:'Chocolate Latte',    temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:122,cat:'논커피',       emoji:'🍵', name:'얼그레이 밀크티',    en:'Earl Grey Milk Tea', temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:123,cat:'논커피',       emoji:'🍵', name:'루이보스 밀크티',    en:'Rooibos Milk Tea',   temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:124,cat:'논커피',       emoji:'🍵', name:'딸기 라떼',          en:'Strawberry Latte',   temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:125,cat:'논커피',       emoji:'🍵', name:'버블 얼그레이 밀크티',en:'Bubble Earl Grey',   temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:126,cat:'논커피',       emoji:'🍵', name:'버블 그린티 라떼',   en:'Bubble Green Tea',   temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:true},
+    // 스무디·에이드
+    {id:140,cat:'스무디·에이드',emoji:'🥤', name:'딸기 스무디',        en:'Strawberry Smoothie',temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:141,cat:'스무디·에이드',emoji:'🥤', name:'망고 스무디',        en:'Mango Smoothie',     temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:142,cat:'스무디·에이드',emoji:'🥤', name:'블루베리 스무디',    en:'Blueberry Smoothie', temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:143,cat:'스무디·에이드',emoji:'🥤', name:'자몽 에이드',        en:'Grapefruit Ade',     temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:144,cat:'스무디·에이드',emoji:'🥤', name:'레몬 에이드',        en:'Lemon Ade',          temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:145,cat:'스무디·에이드',emoji:'🥤', name:'청포도 에이드',      en:'Green Grape Ade',    temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
+    // 쉐이크·프라페
+    {id:150,cat:'쉐이크·프라페',emoji:'🥤', name:'아이스크림 라떼 쉐이크',en:'Ice Cream Latte Shake',  temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:151,cat:'쉐이크·프라페',emoji:'🥤', name:'카페모카 프라페',       en:'Cafe Mocha Frappe',      temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:152,cat:'쉐이크·프라페',emoji:'🥤', name:'카라멜 프라페',         en:'Caramel Frappe',         temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
+    {id:153,cat:'쉐이크·프라페',emoji:'🍨', name:'요거트 아이스 블렌디드', en:'Yogurt Ice Blended',     temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
+    {id:154,cat:'쉐이크·프라페',emoji:'🍦', name:'얼그레이 아이스크림',    en:'Earl Grey Ice Cream',    temps:['ICED'],    sizes:['Regular'],         shot:false, sweet:false},
+    // TWG 티
+    {id:170,cat:'TWG 티',       emoji:'🍵', name:'TWG 크림카라멜 아이스티',en:'TWG Cream Caramel Tea',  temps:['ICED'], sizes:['Regular'], shot:false, sweet:true},
+    {id:171,cat:'TWG 티',       emoji:'🍵', name:'TWG 라즈베리 아이스티',  en:'TWG Raspberry Iced Tea', temps:['ICED'], sizes:['Regular'], shot:false, sweet:true},
+    // 케이크·디저트
+    {id:160,cat:'케이크·디저트',emoji:'🎂', name:'딸기 생크림 케이크',    en:'Strawberry Cream Cake',  temps:['—'], sizes:['조각'], shot:false, sweet:false},
+    {id:161,cat:'케이크·디저트',emoji:'🎂', name:'티라미수 케이크',       en:'Tiramisu Cake',          temps:['—'], sizes:['조각'], shot:false, sweet:false},
+    {id:162,cat:'케이크·디저트',emoji:'🎂', name:'치즈케이크',            en:'Cheesecake',             temps:['—'], sizes:['조각'], shot:false, sweet:false},
+    {id:163,cat:'케이크·디저트',emoji:'🍩', name:'크로플',                en:'Croffle',                temps:['—'], sizes:['1개'],  shot:false, sweet:false},
+    {id:164,cat:'케이크·디저트',emoji:'🍩', name:'스콘',                  en:'Scone',                  temps:['—'], sizes:['1개'],  shot:false, sweet:false},
+  ],
+  pb: [
+    // 커피
+    {id:201,cat:'커피',    emoji:'☕', name:'아이스 룽고',            en:'Iced Lungo',               temps:['ICED'], sizes:['S','M','L'], shot:true,  sweet:false},
+    {id:202,cat:'커피',    emoji:'☕', name:'룽고',                  en:'Lungo',                    temps:['HOT'],  sizes:['S','M','L'], shot:true,  sweet:false},
+    {id:203,cat:'커피',    emoji:'☕', name:'아이스 아메리카노',      en:'Iced Americano',           temps:['ICED'], sizes:['S','M','L'], shot:true,  sweet:false},
+    {id:204,cat:'커피',    emoji:'☕', name:'아메리카노',             en:'Americano',                temps:['HOT'],  sizes:['S','M','L'], shot:true,  sweet:false},
+    {id:205,cat:'커피',    emoji:'☕', name:'아이스 카페 라떼',       en:'Iced Cafe Latte',          temps:['ICED'], sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:206,cat:'커피',    emoji:'☕', name:'카페 라떼',              en:'Cafe Latte',               temps:['HOT'],  sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:207,cat:'커피',    emoji:'☕', name:'아이스 바닐라빈 카페라떼',en:'Iced Vanilla Bean Latte', temps:['ICED'], sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:208,cat:'커피',    emoji:'☕', name:'바닐라빈 카페라떼',      en:'Vanilla Bean Latte',       temps:['HOT'],  sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:209,cat:'커피',    emoji:'☕', name:'아이스 시나몬 카페라떼',  en:'Iced Cinnamon Latte',      temps:['ICED'], sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:210,cat:'커피',    emoji:'☕', name:'시나몬 카페라떼',        en:'Cinnamon Latte',           temps:['HOT'],  sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:211,cat:'커피',    emoji:'☕', name:'아이스 스페니쉬 카페라떼',en:'Iced Spanish Latte',      temps:['ICED'], sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:212,cat:'커피',    emoji:'☕', name:'아이스 카라멜 마키아토',  en:'Iced Caramel Macchiato',   temps:['ICED'], sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:213,cat:'커피',    emoji:'☕', name:'카라멜 마키아토',        en:'Caramel Macchiato',        temps:['HOT'],  sizes:['S','M','L'], shot:true,  sweet:true},
+    {id:214,cat:'커피',    emoji:'☕', name:'플랫 화이트',            en:'Flat White',               temps:['HOT'],  sizes:['S'],         shot:true,  sweet:false},
+    {id:215,cat:'커피',    emoji:'☕', name:'아이스 플랫 화이트',     en:'Iced Flat White',          temps:['ICED'], sizes:['S'],         shot:true,  sweet:false},
+    {id:216,cat:'커피',    emoji:'☕', name:'카푸치노',               en:'Cappuccino',               temps:['HOT'],  sizes:['S','M'],     shot:true,  sweet:false},
+    {id:217,cat:'커피',    emoji:'☕', name:'에스프레소',             en:'Espresso',                 temps:['HOT'],  sizes:['S'],         shot:false, sweet:false},
+    {id:218,cat:'커피',    emoji:'☕', name:'리스트레토',             en:'Ristretto',                temps:['HOT'],  sizes:['S'],         shot:false, sweet:false},
+    // 콜드브루
+    {id:230,cat:'콜드브루',emoji:'🧊', name:'콜드브루',               en:'Cold Brew',                temps:['ICED'], sizes:['M','L'],     shot:false, sweet:false},
+    {id:231,cat:'콜드브루',emoji:'🧊', name:'콜드브루 라떼',          en:'Cold Brew Latte',          temps:['ICED'], sizes:['M','L'],     shot:false, sweet:true},
+    // 디카페인
+    {id:240,cat:'디카페인',emoji:'🌙', name:'디카페인 아이스 아메리카노',en:'Decaf Iced Americano',   temps:['ICED'], sizes:['S','M','L'], shot:false, sweet:false},
+    {id:241,cat:'디카페인',emoji:'🌙', name:'디카페인 아메리카노',     en:'Decaf Americano',          temps:['HOT'],  sizes:['S','M','L'], shot:false, sweet:false},
+    {id:242,cat:'디카페인',emoji:'🌙', name:'디카페인 아이스 카페라떼', en:'Decaf Iced Latte',        temps:['ICED'], sizes:['S','M','L'], shot:false, sweet:true},
+    {id:243,cat:'디카페인',emoji:'🌙', name:'디카페인 카페라떼',       en:'Decaf Cafe Latte',         temps:['HOT'],  sizes:['S','M','L'], shot:false, sweet:true},
+    // 음료
+    {id:250,cat:'음료',    emoji:'🥤', name:'아사이베리 요거트 프라페', en:'Acaiberry Yogurt Frappe',  temps:['BLENDED'], sizes:['M','L'], shot:false, sweet:true},
+    {id:251,cat:'음료',    emoji:'🥤', name:'말차 프라페',             en:'Matcha Frappe',            temps:['BLENDED'], sizes:['M','L'], shot:false, sweet:true},
+    {id:252,cat:'음료',    emoji:'🍵', name:'아이스 제주말차 카페라떼', en:'Iced Jeju Matcha Latte',   temps:['ICED'],    sizes:['S','M','L'], shot:false, sweet:true},
+    {id:253,cat:'음료',    emoji:'🍵', name:'제주말차 카페라떼',       en:'Jeju Matcha Latte',        temps:['HOT'],     sizes:['S','M','L'], shot:false, sweet:true},
+    {id:254,cat:'음료',    emoji:'🍵', name:'우바 아쌈 밀크티',        en:'Uva Assam Milk Tea',       temps:['HOT','ICED'], sizes:['M','L'], shot:false, sweet:true},
+    {id:255,cat:'음료',    emoji:'🍫', name:'아이스 딥 초콜릿 라떼',   en:'Iced Deep Chocolate Latte',temps:['ICED'],    sizes:['M','L'], shot:false, sweet:true},
+    {id:256,cat:'음료',    emoji:'🍫', name:'딥 초콜릿 라떼',          en:'Deep Chocolate Latte',     temps:['HOT'],     sizes:['M','L'], shot:false, sweet:true},
+    // 아이스크림
+    {id:260,cat:'아이스크림',emoji:'🍦',name:'아이스크림 카페라떼',    en:'Ice Cream Cafe Latte',     temps:['ICED'], sizes:['M'],     shot:true,  sweet:true},
+    {id:261,cat:'아이스크림',emoji:'🍦',name:'밀크 소프트 아포가토',   en:'Milk Soft Affogato',       temps:['ICED'], sizes:['M'],     shot:false, sweet:false},
   ]
 };
 
 const SHOTS  = ['기본', '+1샷', '+2샷'];
 const SWEETS = ['기본', '시럽 반만', '시럽 없이'];
 const BRAND_CFG = {
-  sb: { label:'스타벅스 팀 주문', sub:'Starbucks Team Order', icon:'☕', color:'#00704A', dark:'#1E3932', light:'#D4E9E2', gold:'#CBA258' },
-  ts: { label:'투썸 팀 주문',     sub:'A Twosome Place Order', icon:'🎂', color:'#C8102E', dark:'#8B0000', light:'#ffe0e4', gold:'#E8A020' },
+  sb: { label:'스타벅스 팀 주문', icon:'☕', color:'#00704A', dark:'#1E3932', light:'#D4E9E2', gold:'#CBA258' },
+  ts: { label:'투썸 팀 주문',     icon:'🎂', color:'#C8102E', dark:'#8B0000', light:'#ffe0e4', gold:'#E8A020' },
+  pb: { label:'폴바셋 팀 주문',   icon:'🫘', color:'#3D2B1F', dark:'#1C110A', light:'#EDE0D4', gold:'#B8860B' },
 };
 
 let currentBrand = 'sb';
@@ -462,6 +524,7 @@ function setBrand(brand) {
   document.getElementById('menu-search').value = '';
   document.getElementById('btn-brand-sb').classList.toggle('active', brand === 'sb');
   document.getElementById('btn-brand-ts').classList.toggle('active', brand === 'ts');
+  document.getElementById('btn-brand-pb').classList.toggle('active', brand === 'pb');
   applyBrandCSS(brand);
   renderChips();
   renderMenu();
