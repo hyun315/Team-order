@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>팀 음료 주문</title>
+<title>팀 음료 주문 · Christmas</title>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
@@ -40,74 +40,125 @@
   window.dispatchEvent(new Event("fb-ready"));
 </script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Gowun+Batang:wght@700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --cream: #F7F5F0; --ink: #1C1C1C; --muted: #6B6B6B;
-    --border: #E0DDD7; --white: #FFFFFF; --red: #C0392B;
-    --brand: #00704A; --brand-dark: #1E3932; --brand-light: #D4E9E2; --brand-gold: #CBA258;
+    --cream: #FBF5EA; --ink: #1F1C18; --muted: #6E665C;
+    --border: #E7DCCB; --white: #FFFFFF; --red: #B3122E;
+    --pine: #0E3B2C; --berry: #B3122E; --gold: #D9A441; --gold-soft: #F6E7C3;
+    --brand: #0F6B45; --brand-dark: #0B2E22; --brand-light: #E3F1EA; --brand-gold: #D9A441;
   }
-  body { font-family: 'Noto Sans KR', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+  html { background: var(--cream); }
+  body {
+    font-family: 'Noto Sans KR', sans-serif; color: var(--ink); min-height: 100vh;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(217,164,65,.10) 0 2px, transparent 3px) 0 0/46px 46px,
+      radial-gradient(circle at 70% 60%, rgba(179,18,46,.07) 0 2px, transparent 3px) 0 0/58px 58px,
+      var(--cream);
+  }
+
+  /* ── 눈 내리는 효과 ── */
+  .snow { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
+  .flake {
+    position: absolute; top: -12px; color: #fff; opacity: .85;
+    text-shadow: 0 0 4px rgba(14,59,44,.35);
+    animation: fall linear infinite;
+  }
+  @keyframes fall {
+    0%   { transform: translate3d(0,-10px,0) rotate(0deg); }
+    100% { transform: translate3d(var(--drift,20px),105vh,0) rotate(220deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .snow { display: none; } .bulb { animation: none !important; } }
 
   .conn-banner {
-    display: none;
-    background: #fff3cd; color: #856404; text-align: center;
+    display: none; background: #fff3cd; color: #856404; text-align: center;
     font-size: 12px; padding: 8px; font-weight: 600;
   }
   .conn-banner.show { display: block; }
 
-  .brand-bar { display: flex; background: #111; padding: 10px 16px; gap: 10px; }
+  /* ── 브랜드 선택 바 ── */
+  .brand-bar {
+    display: flex; gap: 10px; padding: 10px 16px;
+    background: linear-gradient(90deg, #0A2A1F, #13241C 50%, #3A0A13);
+  }
   .brand-btn {
-    flex: 1; padding: 9px 10px; border-radius: 10px; border: 2px solid transparent;
-    font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
-    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+    flex: 1; padding: 10px; border-radius: 12px; border: 2px solid rgba(255,255,255,.12);
+    font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; color: rgba(255,255,255,.65);
+    background: rgba(255,255,255,.06); transition: all .2s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
   }
-  .brand-btn.sb { background: #1E3932; color: #fff; }
-  .brand-btn.ts { background: #222; color: #aaa; }
-  .brand-btn.pb { background: #222; color: #aaa; }
-  .brand-btn.sb.active { border-color: #00A862; }
-  .brand-btn.ts.active { background: #C8102E; color: #fff; border-color: #ff4d6d; }
-  .brand-btn.pb.active { background: #3D2B1F; color: #fff; border-color: #B8860B; }
+  .brand-btn.sb.active { background: #0F6B45; color: #fff; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217,164,65,.18); }
+  .brand-btn.ts.active { background: #B3122E; color: #fff; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(217,164,65,.18); }
 
+  /* ── 헤더 ── */
   header {
-    background: var(--brand-dark); color: #fff; padding: 14px 18px;
-    display: flex; align-items: center; gap: 12px;
-    position: sticky; top: 0; z-index: 100; transition: background 0.3s;
+    position: sticky; top: 0; z-index: 100;
+    background: var(--brand-dark); color: #fff; padding: 14px 18px 18px;
+    display: flex; align-items: center; gap: 12px; transition: background .3s;
   }
-  .logo-icon { font-size: 24px; }
-  .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
-  .logo-sub  { font-size: 11px; opacity: 0.6; font-weight: 300; display:flex; align-items:center; gap:5px; }
+  .logo-icon {
+    width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+    background: rgba(255,255,255,.1); border: 1.5px solid rgba(217,164,65,.6);
+  }
+  .logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-sub  { font-size: 11px; opacity: .75; font-weight: 400; display:flex; align-items:center; gap:6px; margin-top: 2px; }
+  .xmas-word { font-family: 'Gowun Batang', serif; color: var(--gold); letter-spacing: .5px; }
   .live-dot { width:7px; height:7px; border-radius:50%; background:#4ADE80; display:inline-block; animation: pulse 1.6s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .by-hj {
+    font-size: 13px; font-weight: 700; letter-spacing: 1px; color: var(--gold);
+    border: 1px solid rgba(217,164,65,.55); border-radius: 20px; padding: 4px 10px;
+  }
 
-  .tabs { display: flex; background: var(--brand-dark); border-top: 1px solid rgba(255,255,255,0.1); transition: background 0.3s; }
+  /* 전구 장식 */
+  .lights {
+    position: absolute; left: 0; right: 0; bottom: -9px; height: 18px;
+    display: flex; justify-content: space-around; pointer-events: none;
+  }
+  .lights::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 2px; height: 8px;
+    border-bottom: 1.5px solid rgba(255,255,255,.35); border-radius: 0 0 50% 50%/0 0 100% 100%;
+  }
+  .bulb {
+    position: relative; top: 6px; width: 7px; height: 11px; border-radius: 50% 50% 45% 45%;
+    animation: twinkle 2.4s ease-in-out infinite;
+  }
+  .bulb:nth-child(4n+1) { background: #FF4D5E; box-shadow: 0 0 8px #FF4D5E; }
+  .bulb:nth-child(4n+2) { background: #FFD45C; box-shadow: 0 0 8px #FFD45C; animation-delay: .6s; }
+  .bulb:nth-child(4n+3) { background: #4ADE80; box-shadow: 0 0 8px #4ADE80; animation-delay: 1.2s; }
+  .bulb:nth-child(4n+4) { background: #7CC7FF; box-shadow: 0 0 8px #7CC7FF; animation-delay: 1.8s; }
+  @keyframes twinkle { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+  .tabs { display: flex; background: var(--brand-dark); padding-top: 8px; transition: background .3s; }
   .tab {
     flex: 1; padding: 12px; text-align: center; font-size: 13px; font-weight: 500;
-    color: rgba(255,255,255,0.5); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
+    color: rgba(255,255,255,.55); cursor: pointer; border-bottom: 3px solid transparent; transition: all .2s;
   }
-  .tab.active { color: #fff; border-bottom-color: var(--brand-gold); }
+  .tab.active { color: #fff; border-bottom-color: var(--gold); }
 
-  .screen { display: none; padding: 18px; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
+  .screen { display: none; padding: 18px 16px 48px; max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
   .screen.active { display: block; }
   .section-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 1px;
-    text-transform: uppercase; color: var(--brand); margin-bottom: 10px; transition: color 0.3s;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--brand); margin-bottom: 10px; transition: color .3s;
+    display: flex; align-items: center; gap: 6px;
   }
+  .section-label::before { content: '❄'; color: var(--gold); font-size: 11px; }
 
   .input-field {
     width: 100%; padding: 12px 14px; font-family: inherit; font-size: 15px;
-    border: 1.5px solid var(--border); border-radius: 10px; background: var(--white);
-    outline: none; transition: border-color 0.2s;
+    border: 1.5px solid var(--border); border-radius: 12px; background: var(--white);
+    outline: none; transition: border-color .2s;
   }
   .input-field:focus { border-color: var(--brand); }
   .name-block { margin-bottom: 22px; }
   .name-row { display: flex; gap: 10px; }
-  .name-row > div { flex: 1; }
+  .name-row > div { flex: 1; min-width: 0; }
   .team-chip-row { display: flex; gap: 7px; margin-bottom: 8px; flex-wrap: wrap; }
   .team-chip {
     padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
-    border: 1.5px solid var(--border); background: var(--white); cursor: pointer;
-    transition: all 0.15s; white-space: nowrap;
+    border: 1.5px solid var(--border); background: var(--white); cursor: pointer; transition: all .15s; white-space: nowrap;
   }
   .team-chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
 
@@ -119,93 +170,94 @@
   .chips::-webkit-scrollbar { display: none; }
   .chip {
     flex-shrink: 0; padding: 6px 13px; border-radius: 20px; font-size: 12px; font-weight: 500;
-    border: 1.5px solid var(--border); background: var(--white); cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    border: 1.5px solid var(--border); background: var(--white); cursor: pointer; transition: all .15s; white-space: nowrap;
   }
   .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .chip.season { border-color: var(--gold); background: var(--gold-soft); color: #7A5410; font-weight: 700; }
+  .chip.season.active { background: var(--berry); border-color: var(--berry); color: #fff; }
 
   .menu-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
   .menu-item {
-    background: var(--white); border-radius: 12px; padding: 13px 14px;
+    background: var(--white); border-radius: 14px; padding: 13px 14px;
     display: flex; align-items: center; gap: 11px;
-    cursor: pointer; border: 1.5px solid var(--border); transition: all 0.15s;
+    cursor: pointer; border: 1.5px solid var(--border); transition: all .15s;
   }
   .menu-item:hover { border-color: var(--brand); }
   .menu-item.selected { border-color: var(--brand); background: var(--brand-light); }
+  .menu-item.is-season { border-left: 4px solid var(--berry); }
   .menu-emoji { font-size: 26px; width: 38px; text-align: center; flex-shrink: 0; }
   .menu-info  { flex: 1; min-width: 0; }
-  .menu-name    { font-size: 14px; font-weight: 500; margin-bottom: 1px; }
+  .menu-name    { font-size: 14px; font-weight: 500; margin-bottom: 1px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .menu-name-en { font-size: 11px; color: var(--muted); }
+  .menu-tag {
+    font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: .3px;
+    background: var(--berry); color: #fff;
+  }
+  .menu-tag.new { background: var(--gold); color: #3B2A06; }
   .menu-check {
     width: 22px; height: 22px; border-radius: 50%;
     border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; font-size: 12px; transition: all 0.15s;
+    flex-shrink: 0; font-size: 12px; transition: all .15s;
   }
   .menu-item.selected .menu-check { background: var(--brand); border-color: var(--brand); color: #fff; }
 
   .options-panel {
-    background: var(--white); border-radius: 14px; padding: 16px;
-    margin-bottom: 22px; border: 1.5px solid var(--brand-light);
+    background: var(--white); border-radius: 16px; padding: 16px;
+    margin-bottom: 22px; border: 1.5px solid var(--gold); position: relative;
   }
   .options-title { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 13px; }
   .option-group  { margin-bottom: 13px; }
-  .option-label  { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.4px; margin-bottom: 7px; }
+  .option-label  { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .4px; margin-bottom: 7px; }
   .option-btns   { display: flex; gap: 7px; flex-wrap: wrap; }
   .opt-btn {
     padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 500;
     font-family: inherit; border: 1.5px solid var(--border); background: var(--white);
-    cursor: pointer; transition: all 0.15s;
+    cursor: pointer; transition: all .15s;
   }
   .opt-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
   .memo-input { margin-top: 5px; font-size: 13px; resize: none; height: 56px; }
 
   .btn-submit {
-    width: 100%; padding: 14px; background: var(--brand); color: #fff;
+    width: 100%; padding: 15px; color: #fff;
+    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
     font-family: inherit; font-size: 15px; font-weight: 700;
-    border: none; border-radius: 12px; cursor: pointer; transition: opacity 0.2s; letter-spacing: -0.3px;
+    border: 2px solid var(--gold); border-radius: 14px; cursor: pointer; transition: opacity .2s; letter-spacing: -0.3px;
   }
-  .btn-submit:hover { opacity: 0.9; }
-  .btn-submit:disabled { background: #ccc !important; color: #fff !important; opacity: 0.6; cursor: not-allowed; }
+  .btn-submit:hover { opacity: .92; }
+  .btn-submit:disabled { background: #cfc8bd !important; border-color: #cfc8bd; color: #fff !important; opacity: .7; cursor: not-allowed; }
 
   .summary-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .summary-count { font-size: 21px; font-weight: 700; }
-  .summary-count span { color: var(--brand); }
+  .summary-count span { color: var(--berry); }
   .btn-copy {
-    padding: 8px 15px; background: var(--brand-gold); color: #fff;
+    padding: 8px 15px; background: var(--gold); color: #3B2A06;
     font-family: inherit; font-size: 12px; font-weight: 700;
-    border: none; border-radius: 8px; cursor: pointer; transition: opacity 0.2s;
+    border: none; border-radius: 8px; cursor: pointer; transition: opacity .2s;
   }
-  .btn-copy:hover { opacity: 0.85; }
+  .btn-copy:hover { opacity: .85; }
 
-  .group-block { background: var(--white); border-radius: 14px; border: 1.5px solid var(--brand-light); margin-bottom: 18px; overflow: hidden; }
-
+  .group-block { background: var(--white); border-radius: 14px; border: 1.5px solid var(--border); margin-bottom: 18px; overflow: hidden; }
   .team-block { margin-bottom: 22px; }
   .team-block-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 4px; margin-bottom: 10px;
-    border-bottom: 2px solid var(--ink);
+    padding: 10px 4px; margin-bottom: 10px; border-bottom: 2px dashed var(--berry);
   }
   .team-block-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
-  .team-block-title .team-icon { font-size: 16px; }
   .team-block-total { font-size: 13px; color: var(--muted); font-weight: 600; }
   .group-block-header {
     color: #fff; padding: 10px 15px; font-size: 13px; font-weight: 700;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .total-badge { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 2px 10px; font-size: 12px; }
-
+  .total-badge { background: rgba(255,255,255,.2); border-radius: 20px; padding: 2px 10px; font-size: 12px; }
   .menu-subheader {
-    padding: 9px 15px 5px; background: #f4f4f2; border-bottom: 1px solid var(--border);
+    padding: 9px 15px 5px; background: #FAF4EA; border-bottom: 1px solid var(--border);
     font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center;
   }
   .menu-subheader .menu-total { font-size: 12px; }
-
   .group-row { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid var(--border); gap: 8px; }
   .group-row:last-child { border-bottom: none; }
   .group-row-opts { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-  .opt-tag {
-    display: inline-block; background: var(--cream); border-radius: 5px;
-    padding: 2px 8px; font-size: 11px; color: var(--muted); white-space: nowrap;
-  }
+  .opt-tag { display: inline-block; background: var(--cream); border-radius: 5px; padding: 2px 8px; font-size: 11px; color: var(--muted); white-space: nowrap; }
   .opt-tag.highlight { background: #fff3cd; color: #856404; font-weight: 600; }
   .group-row-names { font-size: 11px; color: var(--muted); flex-shrink: 0; max-width: 110px; text-align: right; line-height: 1.5; }
   .group-row-count { font-size: 16px; font-weight: 700; color: var(--brand); flex-shrink: 0; min-width: 32px; text-align: right; }
@@ -214,60 +266,63 @@
   .order-card { background: var(--white); border-radius: 12px; padding: 13px 15px; border: 1.5px solid var(--border); }
   .order-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
   .order-person { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .team-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; background: #EFEAE0; color: #6B5B3D; }
+  .team-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; background: var(--gold-soft); color: #6B4A0E; }
   .order-brand-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; }
-  .badge-sb { background: #D4E9E2; color: #00704A; }
-  .badge-ts { background: #ffe0e4; color: #C8102E; }
   .order-menu-name { font-size: 13px; color: var(--brand); font-weight: 500; }
   .order-opts { font-size: 12px; color: var(--muted); margin-top: 3px; }
   .btn-delete { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 2px 5px; }
   .btn-delete:hover { color: var(--red); }
 
   .copy-box {
-    background: #1a1a2e; color: #e8e8e8; border-radius: 12px; padding: 16px;
+    background: #10241B; color: #F1E9D8; border-radius: 12px; padding: 16px; border: 1px solid rgba(217,164,65,.4);
     font-size: 12px; line-height: 2; white-space: pre-wrap; word-break: keep-all; margin-bottom: 10px;
   }
   .btn-clear {
     width: 100%; padding: 12px; background: none; color: var(--red);
     font-family: inherit; font-size: 13px; font-weight: 500;
-    border: 1.5px solid #f5c6c2; border-radius: 10px; cursor: pointer; margin-top: 4px;
+    border: 1.5px solid #f2c3c9; border-radius: 10px; cursor: pointer; margin-top: 4px;
   }
-  .btn-clear:hover { background: #fff0ef; }
+  .btn-clear:hover { background: #fff0f1; }
 
   .empty-state { text-align: center; padding: 44px 20px; color: var(--muted); }
-  .empty-state .empty-icon { font-size: 38px; margin-bottom: 10px; }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
   .empty-state p { font-size: 14px; }
 
   .toast {
     position: fixed; bottom: 28px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #222; color: #fff; padding: 11px 22px; border-radius: 30px;
-    font-size: 13px; font-weight: 500; transition: transform 0.3s ease; z-index: 999; white-space: nowrap;
+    transform: translateX(-50%) translateY(90px);
+    background: var(--pine); color: #fff; padding: 11px 22px; border-radius: 30px; border: 1px solid var(--gold);
+    font-size: 13px; font-weight: 500; transition: transform .3s ease; z-index: 999; white-space: nowrap;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
+<div class="snow" id="snow" aria-hidden="true"></div>
 <div class="conn-banner" id="conn-banner">⏳ 서버에 연결 중입니다...</div>
 
 <div class="brand-bar">
   <button class="brand-btn sb active" id="btn-brand-sb" onclick="setBrand('sb')">☕ 스타벅스</button>
   <button class="brand-btn ts"        id="btn-brand-ts" onclick="setBrand('ts')">🎂 투썸플레이스</button>
-  <button class="brand-btn pb"        id="btn-brand-pb" onclick="setBrand('pb')">🫘 폴바셋</button>
 </div>
 
 <header id="main-header">
-  <div class="logo-icon" id="logo-icon">☕</div>
-  <div style="flex:1">
+  <div class="logo-icon" id="logo-icon">🎄</div>
+  <div style="flex:1; min-width:0">
     <div class="logo-text" id="logo-text">스타벅스 팀 주문</div>
-    <div class="logo-sub" id="logo-sub"><span class="live-dot"></span> 실시간 공유 중</div>
+    <div class="logo-sub"><span class="xmas-word">Merry Christmas</span> · <span class="live-dot"></span> 실시간 공유 중</div>
   </div>
-  <div style="font-size:15px; font-weight:700; opacity:0.85; letter-spacing:1px;">by HJ</div>
+  <div class="by-hj">by HJ</div>
+  <div class="lights" aria-hidden="true">
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+    <span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span>
+  </div>
 </header>
 
 <div class="tabs" id="main-tabs">
-  <div class="tab active" onclick="switchTab('order')">☕ 메뉴 신청</div>
+  <div class="tab active" onclick="switchTab('order')">🎁 메뉴 신청</div>
   <div class="tab" onclick="switchTab('summary')">📋 주문 취합</div>
 </div>
 
@@ -277,12 +332,8 @@
     <div class="section-label">소속(팀명)</div>
     <div class="team-chip-row" id="team-chips"></div>
     <div class="name-row">
-      <div>
-        <input class="input-field" id="input-team" type="text" placeholder="직접 입력 (예: 영업1팀)" maxlength="14">
-      </div>
-      <div>
-        <input class="input-field" id="input-name" type="text" placeholder="이름" maxlength="10">
-      </div>
+      <div><input class="input-field" id="input-team" type="text" placeholder="직접 입력 (예: 영업1팀)" maxlength="14"></div>
+      <div><input class="input-field" id="input-name" type="text" placeholder="이름" maxlength="10"></div>
     </div>
   </div>
   <div class="section-label">메뉴 선택</div>
@@ -294,17 +345,17 @@
   <div class="menu-list" id="menu-list"></div>
 
   <div id="options-panel" class="options-panel" style="display:none">
-    <div class="options-title">☑ 옵션 선택</div>
+    <div class="options-title">🎀 옵션 선택</div>
     <div class="option-group"><div class="option-label">온도</div><div class="option-btns" id="opt-temp"></div></div>
     <div class="option-group"><div class="option-label">사이즈</div><div class="option-btns" id="opt-size"></div></div>
     <div class="option-group" id="opt-shot-group"><div class="option-label">샷</div><div class="option-btns" id="opt-shot"></div></div>
     <div class="option-group" id="opt-sweet-group"><div class="option-label">당도</div><div class="option-btns" id="opt-sweet"></div></div>
     <div class="option-group">
       <div class="option-label">메모 (선택)</div>
-      <textarea class="input-field memo-input" id="opt-memo" placeholder="예: 얼음 적게, 두유 변경 등"></textarea>
+      <textarea class="input-field memo-input" id="opt-memo" placeholder="예: 얼음 적게, 두유·오트 변경, 디카페인 등"></textarea>
     </div>
   </div>
-  <button class="btn-submit" id="btn-submit" onclick="submitOrder()" disabled>주문 신청하기</button>
+  <button class="btn-submit" id="btn-submit" onclick="submitOrder()" disabled>🎄 주문 신청하기</button>
 </div>
 
 <!-- SUMMARY -->
@@ -326,183 +377,182 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 메뉴 데이터 (2026.09 기준) ────────────────────────
+// ── 메뉴 데이터 (2026.10.24 기준) ─────────────────────
+// 스타벅스: starbucks.co.kr 공식 상품 페이지 + 신세계그룹 뉴스룸 보도자료(2026.10.21, 크리스마스 시즌 10.22~)
+// 투썸: 매장 레시피 매뉴얼(twosome-recipe-app, 2026.10.23) 기준 — 여름 한정(빙수·눈꽃컵·수박/멜론 주스 등) 제외
+const M = (id, cat, emoji, name, en, temps, sizes, shot, sweet, tag) =>
+  ({ id, cat, emoji, name, en, temps, sizes, shot, sweet, tag: tag || '' });
+const SB3 = ['Tall','Grande','Venti'];
+const TS2 = ['Regular','Large'];
+const TSM = ['Regular','Large','Max'];   // 투썸 Max는 ICED 전용 → HOT 선택 시 자동으로 숨김
+const BL  = ['BLENDED'];
+const HI  = ['HOT','ICED'];
+
 const MENUS = {
   sb: [
-    // 에스프레소 (2026.09 코어메뉴)
-    {id:1,  cat:'에스프레소',  emoji:'☕', name:'아메리카노',              en:'Americano',              temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:2,  cat:'에스프레소',  emoji:'☕', name:'카페 라떼',               en:'Caffe Latte',            temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:3,  cat:'에스프레소',  emoji:'☕', name:'카푸치노',                en:'Cappuccino',             temps:['HOT'],        sizes:['Tall','Grande'],         shot:true,  sweet:false},
-    {id:4,  cat:'에스프레소',  emoji:'☕', name:'카라멜 마키아또',         en:'Caramel Macchiato',      temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:5,  cat:'에스프레소',  emoji:'☕', name:'바닐라 라떼',             en:'Vanilla Latte',          temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:6,  cat:'에스프레소',  emoji:'☕', name:'돌체 라떼',               en:'Dolce Latte',            temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:7,  cat:'에스프레소',  emoji:'☕', name:'카페 모카',               en:'Caffe Mocha',            temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:8,  cat:'에스프레소',  emoji:'☕', name:'화이트 초콜릿 모카',      en:'White Chocolate Mocha',  temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:9,  cat:'에스프레소',  emoji:'☕', name:'플랫 화이트',             en:'Flat White',             temps:['HOT','ICED'], sizes:['Tall'],                  shot:true,  sweet:false},
-    {id:11, cat:'에스프레소',  emoji:'☕', name:'시그니처 코르타도',       en:'Signature Cortado',      temps:['HOT'],        sizes:['Tall'],                  shot:true,  sweet:false},
-    {id:10, cat:'에스프레소',  emoji:'☕', name:'에스프레소',              en:'Espresso',               temps:['HOT'],        sizes:['Solo','Doppio'],         shot:false, sweet:false},
-    {id:12, cat:'에스프레소',  emoji:'☕', name:'에스프레소 콘 파나',      en:'Espresso Con Panna',     temps:['HOT'],        sizes:['Solo','Doppio'],         shot:false, sweet:false},
+    // 🎄 크리스마스 시즌 (2026.10.22~)
+    M(1001,'🎄 크리스마스','🎄','토피 넛 라떼',               'Toffee Nut Latte',              HI,       SB3, true,  true,  'XMAS'),
+    M(1002,'🎄 크리스마스','🎄','윈터 스카치 바닐라 라떼',    'Winter Scotch Vanilla Latte',   HI,       SB3, true,  true,  'XMAS'),
+    M(1003,'🎄 크리스마스','🍷','클래식 뱅쇼 히비스커스 티', 'Classic Vin Chaud Hibiscus Tea',HI,       SB3, false, true,  'XMAS'),
+    M(1004,'🎄 크리스마스','🍑','살구 조이풀 메들리 티 라떼', 'Apricot Joyful Medley Tea Latte',HI,      SB3, false, true,  'NEW'),
+    M(1005,'🎄 크리스마스','🍩','블랙 글레이즈드 라떼',       'Black Glazed Latte',            HI,       SB3, true,  true,  '시즌'),
+    M(1006,'🎄 크리스마스','🍵','말차 글레이즈드 티 라떼',    'Matcha Glazed Tea Latte',       HI,       SB3, false, true,  '시즌'),
+    M(1007,'🎄 크리스마스','🍵','호지 글레이즈드 티 라떼',    'Hoji Glazed Tea Latte',         HI,       SB3, false, true,  '시즌'),
+    // 에스프레소
+    M(1,  '에스프레소','☕','카페 아메리카노',       'Caffe Americano',        HI,       SB3, true,  true),
+    M(2,  '에스프레소','☕','카페 라떼',             'Caffe Latte',            HI,       SB3, true,  true),
+    M(3,  '에스프레소','☕','카푸치노',              'Cappuccino',             HI,       SB3, true,  true),
+    M(4,  '에스프레소','☕','카라멜 마키아또',       'Caramel Macchiato',      HI,       SB3, true,  true),
+    M(5,  '에스프레소','☕','바닐라 라떼',           'Vanilla Latte',          HI,       SB3, true,  true),
+    M(6,  '에스프레소','☕','스타벅스 돌체 라떼',    'Starbucks Dolce Latte',  HI,       SB3, true,  true),
+    M(7,  '에스프레소','☕','카페 모카',             'Caffe Mocha',            HI,       SB3, true,  true),
+    M(8,  '에스프레소','☕','화이트 초콜릿 모카',    'White Chocolate Mocha',  HI,       SB3, true,  true),
+    M(9,  '에스프레소','☕','플랫 화이트',           'Flat White',             HI,       SB3, true,  false),
+    M(10, '에스프레소','☕','시그니처 코르타도',     'Signature Cortado',      ['HOT'],  ['Short'], true, false),
+    M(11, '에스프레소','☕','에스프레소',            'Espresso',               ['HOT'],  ['Solo','Doppio'], false, false),
+    M(12, '에스프레소','☕','에스프레소 마키아또',   'Espresso Macchiato',     ['HOT'],  ['Solo','Doppio'], false, false),
+    M(13, '에스프레소','☕','에스프레소 콘 파나',    'Espresso Con Panna',     ['HOT'],  ['Solo','Doppio'], false, false),
     // 브루드 커피
-    {id:15, cat:'브루드커피',  emoji:'☕', name:'브루드 커피',             en:'Brewed Coffee',          temps:['HOT'],        sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
-    {id:16, cat:'브루드커피',  emoji:'☕', name:'아이스 브루드 커피',      en:'Iced Brewed Coffee',     temps:['ICED'],       sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
-    // 콜드브루 (2026.09: 콜드폼콜드브루 단종, 오트/베르가못 추가)
-    {id:20, cat:'콜드브루',    emoji:'🧊', name:'콜드 브루',               en:'Cold Brew',              temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
-    {id:21, cat:'콜드브루',    emoji:'🧊', name:'돌체 콜드 브루',          en:'Dolce Cold Brew',        temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:22, cat:'콜드브루',    emoji:'🧊', name:'바닐라 크림 콜드 브루',   en:'Vanilla Cream Cold Brew',temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
-    {id:25, cat:'콜드브루',    emoji:'🧊', name:'오트 콜드 브루',          en:'Oat Cold Brew',          temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:26, cat:'콜드브루',    emoji:'🧊', name:'베르가못 콜드 브루',      en:'Bergamot Cold Brew',     temps:['ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:false},
-    {id:24, cat:'콜드브루',    emoji:'🧊', name:'나이트로 콜드 브루',      en:'Nitro Cold Brew',        temps:['ICED'], sizes:['Tall','Grande'],         shot:false, sweet:false},
-    // 프라푸치노
-    {id:30, cat:'프라푸치노',  emoji:'🥤', name:'자바 칩 프라푸치노',      en:'Java Chip Frappuccino',        temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:31, cat:'프라푸치노',  emoji:'🥤', name:'카라멜 프라푸치노',       en:'Caramel Frappuccino',          temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:32, cat:'프라푸치노',  emoji:'🥤', name:'그린티 프라푸치노',       en:'Green Tea Frappuccino',        temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:33, cat:'프라푸치노',  emoji:'🥤', name:'모카 프라푸치노',         en:'Mocha Frappuccino',            temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    {id:34, cat:'프라푸치노',  emoji:'🥤', name:'스트로베리 프라푸치노',   en:'Strawberry Frappuccino',       temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:35, cat:'프라푸치노',  emoji:'🥤', name:'바닐라 크림 프라푸치노',  en:'Vanilla Cream Frappuccino',    temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:36, cat:'프라푸치노',  emoji:'🥤', name:'더블 에스프레소 칩 프라푸치노',en:'Double Espresso Chip Frap',temps:['BLENDED'], sizes:['Tall','Grande','Venti'], shot:true,  sweet:true},
-    // 티·음료 (티바나)
-    {id:40, cat:'티·음료',     emoji:'🍵', name:'민트 블렌드 티',          en:'Mint Blend Tea',         temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:41, cat:'티·음료',     emoji:'🍵', name:'잉글리시 브렉퍼스트 티',  en:'English Breakfast Tea',  temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:42, cat:'티·음료',     emoji:'🍵', name:'그린티 라떼',             en:'Green Tea Latte',        temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:43, cat:'티·음료',     emoji:'🍵', name:'차이 티 라떼',            en:'Chai Tea Latte',         temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:44, cat:'티·음료',     emoji:'🍵', name:'유스베리 티',             en:'Youthberry Tea',         temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:45, cat:'티·음료',     emoji:'🍵', name:'제주 말차 라떼',          en:'Jeju Matcha Latte',      temps:['HOT','ICED'], sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:46, cat:'티·음료',     emoji:'🍵', name:'자몽 허니 블랙 티',       en:'Grapefruit Honey Black Tea',temps:['HOT','ICED'],sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    // 초콜릿·기타
-    {id:50, cat:'초콜릿·기타', emoji:'🍫', name:'시그니처 핫 초콜릿',      en:'Signature Hot Chocolate',temps:['HOT'],        sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:52, cat:'초콜릿·기타', emoji:'🍫', name:'아이스 시그니처 초콜릿',  en:'Iced Signature Chocolate',temps:['ICED'],       sizes:['Tall','Grande','Venti'], shot:false, sweet:true},
-    {id:51, cat:'초콜릿·기타', emoji:'🥛', name:'스팀 우유',               en:'Steamed Milk',           temps:['HOT'],        sizes:['Tall','Grande'],         shot:false, sweet:false},
+    M(15, '브루드 커피','☕','브루드 커피',          'Brewed Coffee',          ['HOT'],  SB3, false, false),
+    M(16, '브루드 커피','🧊','아이스 브루드 커피',   'Iced Brewed Coffee',     ['ICED'], SB3, false, false),
+    // 콜드 브루
+    M(20, '콜드 브루','🧊','콜드 브루',              'Cold Brew',              ['ICED'], SB3, false, false),
+    M(21, '콜드 브루','🧊','돌체 콜드 브루',         'Dolce Cold Brew',        ['ICED'], SB3, false, true),
+    M(22, '콜드 브루','🧊','바닐라 크림 콜드 브루',  'Vanilla Cream Cold Brew',['ICED'], SB3, false, true),
+    M(23, '콜드 브루','🧊','오트 콜드 브루',         'Oat Cold Brew',          ['ICED'], SB3, false, true),
+    M(24, '콜드 브루','🧊','베르가못 콜드 브루',     'Bergamot Cold Brew',     ['ICED'], SB3, false, true),
+    M(25, '콜드 브루','🧊','나이트로 콜드 브루',     'Nitro Cold Brew',        ['ICED'], ['Short','Tall','Grande'], false, false),
+    // 프라푸치노 · 블렌디드
+    M(30, '프라푸치노·블렌디드','🥤','자바 칩 프라푸치노',     'Java Chip Frappuccino',        ['BLENDED'], SB3, true,  true),
+    M(31, '프라푸치노·블렌디드','🥤','카라멜 프라푸치노',      'Caramel Frappuccino',          ['BLENDED'], SB3, true,  true),
+    M(32, '프라푸치노·블렌디드','🥤','초콜릿 크림 칩 프라푸치노','Chocolate Cream Chip Frappuccino',['BLENDED'], SB3, false, true),
+    M(33, '프라푸치노·블렌디드','🥤','제주 말차 크림 프라푸치노','Jeju Matcha Cream Frappuccino',['BLENDED'], SB3, false, true),
+    M(34, '프라푸치노·블렌디드','🥭','자몽 망고 코코 프라푸치노','Grapefruit Mango Coco Frappuccino',['BLENDED'], SB3, false, true),
+    M(35, '프라푸치노·블렌디드','🍌','망고 바나나 블렌디드',   'Mango Banana Blended',         ['BLENDED'], SB3, false, true),
+    // 리프레셔 · 피지오
+    M(40, '리프레셔·피지오','🍓','딸기 아사이 레모네이드 스타벅스 리프레셔','Strawberry Acai Lemonade Refresher',['ICED'], SB3, false, true),
+    M(41, '리프레셔·피지오','🍑','핑크 피치 리프레셔',     'Pink Peach Refresher',   ['ICED'], SB3, false, true),
+    M(42, '리프레셔·피지오','🍋','쿨 라임 피지오',         'Cool Lime Fizzio',       ['ICED'], SB3, false, true),
+    // 티 (티바나)
+    M(50, '티','🍵','자몽 허니 블랙 티',      'Grapefruit Honey Black Tea', HI, SB3, false, true),
+    M(51, '티','🍵','유자 민트 티',           'Yuja Mint Tea',              HI, SB3, false, true),
+    M(52, '티','🍵','차이 티 라떼',           'Chai Tea Latte',             HI, SB3, false, true),
+    M(53, '티','🍵','제주 말차 라떼',         'Jeju Matcha Latte',          HI, SB3, false, true),
+    M(54, '티','🍵','민트 블렌드 티',         'Mint Blend Tea',             HI, SB3, false, false),
+    M(55, '티','🍵','잉글리시 브렉퍼스트 티', 'English Breakfast Tea',      HI, SB3, false, false),
+    M(56, '티','🍵','유스베리 티',            'Youthberry Tea',             HI, SB3, false, false),
+    // 기타 제조 음료
+    M(60, '초콜릿·기타','🍫','시그니처 핫 초콜릿',     'Signature Hot Chocolate',  ['HOT'],  SB3, false, true),
+    M(61, '초콜릿·기타','🍫','아이스 시그니처 초콜릿', 'Iced Signature Chocolate', ['ICED'], SB3, false, true),
+    M(62, '초콜릿·기타','🥛','스팀 우유',              'Steamed Milk',             ['HOT'],  ['Short','Tall'], false, false),
   ],
   ts: [
-    // 에스프레소 & 콜드브루 (나무위키 2026.09.01 확인)
-    {id:101,cat:'에스프레소',   emoji:'☕', name:'아메리카노',         en:'Americano',          temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:102,cat:'에스프레소',   emoji:'☕', name:'카페 라떼',          en:'Caffe Latte',        temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:103,cat:'에스프레소',   emoji:'☕', name:'카푸치노',           en:'Cappuccino',         temps:['HOT'],        sizes:['Regular'],         shot:true,  sweet:false},
-    {id:104,cat:'에스프레소',   emoji:'☕', name:'바닐라 라떼',        en:'Vanilla Latte',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:105,cat:'에스프레소',   emoji:'☕', name:'카라멜 마끼아또',    en:'Caramel Macchiato',  temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:106,cat:'에스프레소',   emoji:'☕', name:'카페 모카',          en:'Caffe Mocha',        temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:113,cat:'에스프레소',   emoji:'☕', name:'스페니쉬 연유 라떼', en:'Spanish Latte',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:114,cat:'에스프레소',   emoji:'☕', name:'롱블랙',             en:'Long Black',         temps:['HOT','ICED'], sizes:['Regular'],          shot:true,  sweet:false},
-    {id:115,cat:'에스프레소',   emoji:'☕', name:'숏 라떼',            en:'Short Latte',        temps:['HOT','ICED'], sizes:['Regular'],          shot:true,  sweet:true},
-    {id:108,cat:'에스프레소',   emoji:'☕', name:'달고나 라떼',        en:'Dalgona Latte',      temps:['HOT','ICED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:107,cat:'에스프레소',   emoji:'☕', name:'콜드 브루',          en:'Cold Brew',          temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:false},
-    {id:116,cat:'에스프레소',   emoji:'☕', name:'콜드 브루 라떼',     en:'Cold Brew Latte',    temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:110,cat:'에스프레소',   emoji:'☕', name:'에스프레소',         en:'Espresso',           temps:['HOT'],        sizes:['Single','Double'], shot:false, sweet:false},
-    {id:111,cat:'에스프레소',   emoji:'☕', name:'에스프레소 콘 파나', en:'Espresso Con Panna', temps:['HOT'],        sizes:['Single','Double'], shot:false, sweet:false},
-    // 아샷추 시리즈
-    {id:117,cat:'에스프레소',   emoji:'🍑', name:'피치 아샷추',        en:'Peach Iced Tea Shot',temps:['ICED'],       sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:118,cat:'에스프레소',   emoji:'🌿', name:'민트 아샷추',        en:'Mint Iced Tea Shot', temps:['ICED'],       sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:119,cat:'에스프레소',   emoji:'🍏', name:'애플 아샷추',        en:'Apple Iced Tea Shot',temps:['ICED'],       sizes:['Regular','Large'], shot:true,  sweet:true},
-    // 티 베리에이션
-    {id:120,cat:'티·라떼',      emoji:'🍵', name:'그린티 라떼',        en:'Green Tea Latte',    temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:121,cat:'티·라떼',      emoji:'🍵', name:'초콜릿 라떼',        en:'Chocolate Latte',    temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:122,cat:'티·라떼',      emoji:'🍵', name:'로얄 밀크티',        en:'Royal Milk Tea',     temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:123,cat:'티·라떼',      emoji:'🍵', name:'꿀 고구마 라떼',     en:'Honey Sweet Potato', temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:127,cat:'티·라떼',      emoji:'🍵', name:'말차 크림 라떼',     en:'Matcha Cream Latte', temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:128,cat:'티·라떼',      emoji:'🍵', name:'유자 레몬티',        en:'Yuja Lemon Tea',     temps:['HOT','ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:129,cat:'티·라떼',      emoji:'🍵', name:'오렌지 자몽티',      en:'Orange Grapefruit Tea',temps:['HOT','ICED'],sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:130,cat:'티·라떼',      emoji:'🍵', name:'TWG 티',             en:'TWG Tea',            temps:['HOT','ICED'], sizes:['Regular'],          shot:false, sweet:true},
-    {id:131,cat:'티·라떼',      emoji:'🍵', name:'TWG 크림카라멜 아이스티',en:'TWG Cream Caramel Iced Tea',temps:['ICED'],sizes:['Regular'],      shot:false, sweet:true},
-    {id:132,cat:'티·라떼',      emoji:'🍵', name:'TWG 라즈베리 아이스티',  en:'TWG Raspberry Iced Tea',    temps:['ICED'],sizes:['Regular'],      shot:false, sweet:true},
-    {id:125,cat:'티·라떼',      emoji:'🍵', name:'버블 밀크티',        en:'Bubble Milk Tea',    temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:126,cat:'티·라떼',      emoji:'🍵', name:'버블 그린티 라떼',   en:'Bubble Green Tea',   temps:['ICED'],       sizes:['Regular','Large'], shot:false, sweet:true},
+    // ── 투썸 매장 레시피 매뉴얼(twosome-recipe-app, 2026.10.23) 기준 ──
+    // 🎄 겨울 시즌
+    M(2001,'🎄 겨울 시즌','🍷','윈터 뱅쇼',             'Winter Vin Chaud',            HI, TSM, false, true,  'XMAS'),
+    M(2002,'🎄 겨울 시즌','🍷','뱅쇼 로우 슈거',        'Vin Chaud Low Sugar',         HI, TSM, false, false, 'XMAS'),
+    M(2003,'🎄 겨울 시즌','🍮','솔티드 카라멜 라떼',    'Salted Caramel Latte',        HI, TSM, true,  true,  '시즌'),
+    M(2004,'🎄 겨울 시즌','🌰','구운 밤 라떼',          'Roasted Chestnut Latte',      HI, TSM, true,  true,  '시즌'),
+    M(2005,'🎄 겨울 시즌','🧀','블랙 치즈폼 라떼',      'Black Cheese Foam Latte',     HI, TSM, true,  true,  'NEW'),
+    M(2006,'🎄 겨울 시즌','🍓','딸기 요거트 프라페',    'Strawberry Yogurt Frappe',    BL, TSM, false, true,  'NEW'),
+    // 커피
+    M(101,'커피','☕','카페 아메리카노',            'Caffe Americano',          HI,      TSM, true,  true),
+    M(102,'커피','☕','아로마 아메리카노',          'Aroma Americano',          HI,      TSM, true,  true),
+    M(103,'커피','🌙','디카페인 아메리카노',        'Decaf Americano',          HI,      TSM, true,  true),
+    M(104,'커피','☕','카페 라떼',                  'Caffe Latte',              HI,      TSM, true,  true),
+    M(105,'커피','☕','카푸치노',                   'Cappuccino',               ['HOT'], TS2, true,  true),
+    M(106,'커피','☕','바닐라 카페라떼',            'Vanilla Caffe Latte',      HI,      TSM, true,  true),
+    M(107,'커피','☕','바닐라빈 라떼',              'Vanilla Bean Latte',       HI,      TSM, true,  true),
+    M(108,'커피','☕','카페 모카',                  'Caffe Mocha',              HI,      TSM, true,  true),
+    M(109,'커피','☕','카라멜 마키아또',            'Caramel Macchiato',        HI,      TSM, true,  true),
+    M(110,'커피','☕','스페니쉬 연유 카페라떼',     'Spanish Condensed Milk Latte',HI,   TSM, true,  true),
+    M(111,'커피','🥜','피넛 헤이즐넛 라떼',         'Peanut Hazelnut Latte',    HI,      TSM, true,  true),
+    M(112,'커피','☕','달고나 카페라떼',            'Dalgona Caffe Latte',      HI,      TSM, true,  true),
+    M(113,'커피','☕','생크림 아메리카노',          'Cream Top Americano',      HI,      TSM, true,  true),
+    M(114,'커피','☕','생크림 카페 라떼',           'Cream Top Caffe Latte',    HI,      TSM, true,  true),
+    M(115,'커피','🌙','디카페인 오트화이트 카페라떼','Decaf Oat White Latte',   HI,      TSM, true,  true),
+    M(116,'커피','🟣','우베 카페 라떼',             'Ube Caffe Latte',          ['ICED'],TSM, true,  true),
+    M(117,'커피','☕','롱블랙',                     'Long Black',               HI,      ['Regular'], true, false),
+    M(118,'커피','☕','숏라떼',                     'Short Latte',              HI,      ['Regular'], true, true),
+    M(119,'커피','☕','에스프레소',                 'Espresso',                 ['HOT'], ['Single','Double'], false, false),
+    // 콜드브루 · 아샷추
+    M(120,'콜드브루·아샷추','🧊','콜드브루',              'Cold Brew',                  ['ICED'], TSM, false, false),
+    M(121,'콜드브루·아샷추','🧊','콜드브루 라떼',         'Cold Brew Latte',            ['ICED'], TSM, false, true),
+    M(122,'콜드브루·아샷추','🧊','바닐라빈 콜드브루 라떼','Vanilla Bean Cold Brew Latte',['ICED'], TSM, false, true),
+    M(123,'콜드브루·아샷추','🌙','디카페인 콜드브루',     'Decaf Cold Brew',            ['ICED'], TSM, false, false),
+    M(124,'콜드브루·아샷추','🌙','디카페인 콜드브루 라떼','Decaf Cold Brew Latte',      ['ICED'], TSM, false, true),
+    M(125,'콜드브루·아샷추','🥛','디카페인 밀샷추',       'Decaf Milk Shot',            ['ICED'], TSM, false, true),
+    M(126,'콜드브루·아샷추','🌿','디카페인 민트 밀샷추',  'Decaf Mint Milk Shot',       ['ICED'], TSM, false, true),
+    M(127,'콜드브루·아샷추','🍑','복숭아 아샷추',         'Peach Iced Tea + Shot',      ['ICED'], ['Max'], true, true),
+    M(128,'콜드브루·아샷추','🍋','레몬 아샷추',           'Lemon Iced Tea + Shot',      ['ICED'], ['Max'], true, true),
+    // 투썸 말차
+    M(130,'말차','🍵','말차',                   'Matcha',                    HI,       TSM, false, true),
+    M(131,'말차','🍵','말차 라떼',              'Matcha Latte',              HI,       TSM, false, true),
+    M(132,'말차','🍵','생크림 말차 카페 라떼',  'Cream Top Matcha Caffe Latte',HI,     TSM, true,  true),
+    M(133,'말차','🥭','애플망고 말차 라떼',     'Apple Mango Matcha Latte',  ['ICED'], TSM, false, true),
+    M(134,'말차','🍋','유자 레몬 말차 토닉',    'Yuja Lemon Matcha Tonic',   ['ICED'], TSM, false, true),
+    M(135,'말차','🍵','그린티 라떼',            'Green Tea Latte',           HI,       TSM, false, true),
+    // 전통 · K라떼
+    M(140,'전통·K라떼','🖤','흑임자 라떼',      'Black Sesame Latte',        HI,       TSM, false, true, 'NEW'),
+    M(141,'전통·K라떼','🌾','율무 라떼',        "Job's Tears Latte",         HI,       TSM, false, true, 'NEW'),
+    M(142,'전통·K라떼','🌿','쑥 라떼',          'Mugwort Latte',             HI,       TSM, false, true, 'NEW'),
+    M(143,'전통·K라떼','🍠','꿀 고구마 라떼',   'Honey Sweet Potato Latte',  HI,       TSM, false, true),
+    M(144,'전통·K라떼','🌾','현미 미숫가루',    'Brown Rice Misutgaru',      HI,       TSM, false, true),
+    M(145,'전통·K라떼','🍋','유자 생강차',      'Yuja Ginger Tea',           HI,       TSM, false, true),
+    M(146,'전통·K라떼','🍵','우리 대추 수정과','Jujube Sujeonggwa',          HI,       ['Large','Max'], false, false),
+    M(147,'전통·K라떼','🍚','우리 쌀 식혜',     'Rice Sikhye',               ['ICED'], ['Large','Max'], false, false),
+    // 티
+    M(150,'티','🍯','허니 레몬티',     'Honey Lemon Tea',          HI,       ['Regular'], false, false),
+    M(151,'티','🍋','유자 레몬티',     'Yuja Lemon Tea',           HI,       TS2, false, false),
+    M(152,'티','🍊','오렌지 자몽티',   'Orange Grapefruit Tea',    HI,       TS2, false, false),
+    M(153,'티','🍏','애플 민트티',     'Apple Mint Tea',           HI,       ['Regular'], false, false),
+    M(154,'티','🫖','로얄 밀크티',     'Royal Milk Tea',           HI,       TS2, false, true),
+    M(155,'티','🫖','TWG 티',          'TWG Tea',                  HI,       ['Large'], false, false),
+    M(156,'티','🍑','복숭아 아이스티', 'Peach Iced Tea',           ['ICED'], ['Max'], false, false),
+    M(157,'티','🍋','레몬 아이스티',   'Lemon Iced Tea',           ['ICED'], ['Max'], false, false),
     // 블렌디드
-    {id:140,cat:'블렌디드',     emoji:'🥤', name:'스트로베리 피치 프라페',en:'Strawberry Peach Frappe',temps:['BLENDED'],sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:141,cat:'블렌디드',     emoji:'🥤', name:'애플망고 피치 프라페',en:'Apple Mango Peach Frappe',temps:['BLENDED'],sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:142,cat:'블렌디드',     emoji:'🥤', name:'요거트 프라페',      en:'Yogurt Frappe',      temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:143,cat:'블렌디드',     emoji:'🥤', name:'민트 초코 프라페',   en:'Mint Choco Frappe',  temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:144,cat:'블렌디드',     emoji:'🥤', name:'밀크티 쉐이크',      en:'Milk Tea Shake',     temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:145,cat:'블렌디드',     emoji:'🥤', name:'바닐라 밀크 쉐이크', en:'Vanilla Milk Shake', temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:146,cat:'블렌디드',     emoji:'🥤', name:'쿠키 쉐이크',        en:'Cookie Shake',       temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    // 요거트 드링크
-    {id:150,cat:'요거트',       emoji:'🍶', name:'블루베리 요거트드링크',en:'Blueberry Yogurt',   temps:['ICED'],    sizes:['Regular','Large'], shot:false, sweet:true},
-    // 에이드
-    {id:160,cat:'에이드',       emoji:'🍊', name:'자몽 에이드',        en:'Grapefruit Ade',     temps:['ICED'], sizes:['Large','Max'], shot:false, sweet:true},
-    {id:161,cat:'에이드',       emoji:'🍊', name:'오렌지 에이드',      en:'Orange Ade',         temps:['ICED'], sizes:['Large','Max'], shot:false, sweet:true},
-    {id:162,cat:'에이드',       emoji:'🍑', name:'복숭아 에이드',      en:'Peach Ade',          temps:['ICED'], sizes:['Large','Max'], shot:false, sweet:true},
-    {id:163,cat:'에이드',       emoji:'🍇', name:'샤인머스켓 청포도 에이드',en:'Shine Muscat Ade',temps:['ICED'],sizes:['Large','Max'], shot:false, sweet:true},
-    {id:164,cat:'에이드',       emoji:'🍋', name:'허니 레몬 에이드',   en:'Honey Lemon Ade',    temps:['ICED'], sizes:['Large','Max'], shot:false, sweet:true},
-    // 생과일주스
-    {id:170,cat:'주스',         emoji:'🍊', name:'오렌지 자몽 주스',   en:'Orange Grapefruit Juice',temps:['ICED'],sizes:['Regular','Large'], shot:false, sweet:false},
-    {id:171,cat:'주스',         emoji:'🥝', name:'키위 바나나 주스',   en:'Kiwi Banana Juice',  temps:['ICED'], sizes:['Regular','Large'], shot:false, sweet:false},
-    {id:172,cat:'주스',         emoji:'🥭', name:'망고 바나나 라떼',   en:'Mango Banana Latte', temps:['ICED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:173,cat:'주스',         emoji:'🍊', name:'제주 한라봉 주스',   en:'Jeju Hallabong Juice',temps:['ICED'],sizes:['Regular','Large'], shot:false, sweet:false},
-    {id:174,cat:'주스',         emoji:'🥭', name:'애플망고 주스',      en:'Apple Mango Juice',  temps:['ICED'], sizes:['Regular','Large'], shot:false, sweet:false},
+    M(160,'블렌디드','🥤','자바칩 프라페',          'Java Chip Frappe',          BL, TSM, false, true),
+    M(161,'블렌디드','🥤','요거트 프라페',          'Yogurt Frappe',             BL, TSM, false, true),
+    M(162,'블렌디드','🍑','스트로베리 피치 프라페', 'Strawberry Peach Frappe',   BL, TS2, false, true),
+    M(163,'블렌디드','🥤','바닐라 밀크 쉐이크',     'Vanilla Milk Shake',        BL, TSM, false, true),
+    M(164,'블렌디드','🍪','쿠키 쉐이크',            'Cookie Shake',              BL, TSM, false, true),
+    M(165,'블렌디드','🫖','로얄 밀크티 쉐이크',     'Royal Milk Tea Shake',      BL, TS2, false, true),
+    M(166,'블렌디드','🟣','우베 쉐이크',            'Ube Shake',                 BL, TS2, false, true),
+    // 주스 · 에이드
+    M(170,'주스·에이드','🥭','애플망고 주스',     'Apple Mango Juice',       ['ICED'], TSM, false, false),
+    M(171,'주스·에이드','🍊','제주 한라봉 주스',  'Jeju Hallabong Juice',    ['ICED'], TSM, false, false),
+    M(172,'주스·에이드','🥝','키위 바나나 주스',  'Kiwi Banana Juice',       ['ICED'], ['Large'], false, false),
+    M(173,'주스·에이드','🍊','오렌지 자몽 주스',  'Orange Grapefruit Juice', ['ICED'], ['Large'], false, false),
+    M(174,'주스·에이드','🍋','허니 레몬 에이드',  'Honey Lemon Ade',         ['ICED'], ['Large','Max'], false, true),
+    M(175,'주스·에이드','🍊','자몽 에이드',       'Grapefruit Ade',          ['ICED'], ['Large','Max'], false, true),
+    M(176,'주스·에이드','🍊','오렌지 에이드',     'Orange Ade',              ['ICED'], ['Large','Max'], false, true),
+    M(177,'주스·에이드','🍑','복숭아 에이드',     'Peach Ade',               ['ICED'], ['Large','Max'], false, true),
+    // 드링크 · 기타
+    M(180,'드링크·기타','🍫','초콜릿 라떼',            'Chocolate Latte',       HI,       TSM, false, true),
+    M(181,'드링크·기타','🟣','투썸 우베 라떼',         'Twosome Ube Latte',     ['ICED'], TSM, false, true),
+    M(182,'드링크·기타','🫐','블루베리 요거트 드링크', 'Blueberry Yogurt Drink',['ICED'], TSM, false, true),
+    M(183,'드링크·기타','🍨','바닐라 아포가토',        'Vanilla Affogato',      ['—'],    ['Regular'], false, false),
+    M(184,'드링크·기타','🥛','우유',                   'Milk',                  HI,       ['Regular'], false, false),
     // 케이크·디저트
-    {id:180,cat:'케이크·디저트',emoji:'🎂', name:'떠먹는 마스카포네 티라미수',en:'Tiramisu',      temps:['—'], sizes:['조각'], shot:false, sweet:false},
-    {id:181,cat:'케이크·디저트',emoji:'🎂', name:'떠먹는 스초생',      en:'Strawberry Choco',   temps:['—'], sizes:['조각'], shot:false, sweet:false},
-    {id:182,cat:'케이크·디저트',emoji:'🎂', name:'떠먹는 아박',        en:'Tiramisu Icebox',    temps:['—'], sizes:['조각'], shot:false, sweet:false},
-    {id:183,cat:'케이크·디저트',emoji:'🎂', name:'뉴욕 치즈케이크',    en:'New York Cheesecake',temps:['—'], sizes:['조각'], shot:false, sweet:false},
-    {id:184,cat:'케이크·디저트',emoji:'🎂', name:'퀸즈캐롯',           en:'Queens Carrot',      temps:['—'], sizes:['조각'], shot:false, sweet:false},
-    // 쉐이크·프라페
-    {id:150,cat:'쉐이크·프라페',emoji:'🥤', name:'아이스크림 라떼 쉐이크',en:'Ice Cream Latte Shake',  temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:151,cat:'쉐이크·프라페',emoji:'🥤', name:'카페모카 프라페',       en:'Cafe Mocha Frappe',      temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:152,cat:'쉐이크·프라페',emoji:'🥤', name:'카라멜 프라페',         en:'Caramel Frappe',         temps:['BLENDED'], sizes:['Regular','Large'], shot:true,  sweet:true},
-    {id:153,cat:'쉐이크·프라페',emoji:'🍨', name:'요거트 아이스 블렌디드', en:'Yogurt Ice Blended',     temps:['BLENDED'], sizes:['Regular','Large'], shot:false, sweet:true},
-    {id:154,cat:'쉐이크·프라페',emoji:'🍦', name:'얼그레이 아이스크림',    en:'Earl Grey Ice Cream',    temps:['ICED'],    sizes:['Regular'],         shot:false, sweet:false},
-    // TWG 티
-    {id:170,cat:'TWG 티',       emoji:'🍵', name:'TWG 크림카라멜 아이스티',en:'TWG Cream Caramel Tea',  temps:['ICED'], sizes:['Regular'], shot:false, sweet:true},
-    {id:171,cat:'TWG 티',       emoji:'🍵', name:'TWG 라즈베리 아이스티',  en:'TWG Raspberry Iced Tea', temps:['ICED'], sizes:['Regular'], shot:false, sweet:true},
-    // 케이크·디저트
-    {id:160,cat:'케이크·디저트',emoji:'🎂', name:'딸기 생크림 케이크',    en:'Strawberry Cream Cake',  temps:['—'], sizes:['조각'], shot:false, sweet:false},
+    M(190,'케이크·디저트','🎂','떠먹는 스초생',            'Strawberry Choco Cake Cup', ['—'], ['조각'], false, false),
+    M(191,'케이크·디저트','🎂','떠먹는 아박',              'Iced Box Cup',              ['—'], ['조각'], false, false),
+    M(192,'케이크·디저트','🎂','떠먹는 마스카포네 티라미수','Mascarpone Tiramisu Cup',   ['—'], ['조각'], false, false),
+    M(193,'케이크·디저트','🎂','뉴욕 치즈케이크',          'New York Cheesecake',       ['—'], ['조각'], false, false),
+    M(194,'케이크·디저트','🍮','바닐라빈 크렘브륄레',      'Vanilla Bean Crème Brûlée', ['—'], ['조각'], false, false, 'NEW'),
   ],
-  pb: [
-    // 커피 (공식사이트 2026.09 확인)
-    {id:201,cat:'커피',    emoji:'☕', name:'룽고',                   en:'Lungo',               temps:['HOT'],        sizes:['S','M','L'], shot:true,  sweet:false},
-    {id:202,cat:'커피',    emoji:'☕', name:'아이스 룽고',             en:'Iced Lungo',          temps:['ICED'],       sizes:['S','M','L'], shot:true,  sweet:false},
-    {id:203,cat:'커피',    emoji:'☕', name:'아메리카노',              en:'Americano',           temps:['HOT'],        sizes:['S','M','L'], shot:true,  sweet:false},
-    {id:204,cat:'커피',    emoji:'☕', name:'아이스 아메리카노',       en:'Iced Americano',      temps:['ICED'],       sizes:['S','M','L'], shot:true,  sweet:false},
-    {id:205,cat:'커피',    emoji:'☕', name:'카페 라떼',               en:'Cafe Latte',          temps:['HOT'],        sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:206,cat:'커피',    emoji:'☕', name:'아이스 카페 라떼',        en:'Iced Cafe Latte',     temps:['ICED'],       sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:207,cat:'커피',    emoji:'☕', name:'바닐라빈 카페라떼',       en:'Vanilla Bean Latte',  temps:['HOT'],        sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:208,cat:'커피',    emoji:'☕', name:'아이스 바닐라빈 카페라떼',en:'Iced Vanilla Bean',   temps:['ICED'],       sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:209,cat:'커피',    emoji:'☕', name:'시나몬 카페라떼',         en:'Cinnamon Latte',      temps:['HOT'],        sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:210,cat:'커피',    emoji:'☕', name:'아이스 시나몬 카페라떼',  en:'Iced Cinnamon Latte', temps:['ICED'],       sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:211,cat:'커피',    emoji:'☕', name:'스페니쉬 카페라떼',       en:'Spanish Latte',       temps:['HOT'],        sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:212,cat:'커피',    emoji:'☕', name:'아이스 스페니쉬 카페라떼',en:'Iced Spanish Latte',  temps:['ICED'],       sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:213,cat:'커피',    emoji:'☕', name:'카라멜 마키아토',         en:'Caramel Macchiato',   temps:['HOT'],        sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:214,cat:'커피',    emoji:'☕', name:'아이스 카라멜 마키아토',  en:'Iced Caramel Macchiato',temps:['ICED'],     sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:215,cat:'커피',    emoji:'☕', name:'카페 모카',               en:'Cafe Mocha',          temps:['HOT'],        sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:216,cat:'커피',    emoji:'☕', name:'아이스 카페 모카',        en:'Iced Cafe Mocha',     temps:['ICED'],       sizes:['S','M','L'], shot:true,  sweet:true},
-    {id:217,cat:'커피',    emoji:'☕', name:'플랫 화이트',             en:'Flat White',          temps:['HOT'],        sizes:['S'],         shot:true,  sweet:false},
-    {id:218,cat:'커피',    emoji:'☕', name:'아이스 플랫 화이트',      en:'Iced Flat White',     temps:['ICED'],       sizes:['S'],         shot:true,  sweet:false},
-    {id:219,cat:'커피',    emoji:'☕', name:'카푸치노',                en:'Cappuccino',          temps:['HOT'],        sizes:['S','M'],     shot:true,  sweet:false},
-    {id:220,cat:'커피',    emoji:'☕', name:'에스프레소',              en:'Espresso',            temps:['HOT'],        sizes:['S'],         shot:false, sweet:false},
-    {id:221,cat:'커피',    emoji:'☕', name:'리스트레토',              en:'Ristretto',           temps:['HOT'],        sizes:['S'],         shot:false, sweet:false},
-    // 콜드브루
-    {id:230,cat:'콜드브루',emoji:'🧊', name:'콜드브루',                en:'Cold Brew',           temps:['ICED'],       sizes:['M','L'],     shot:false, sweet:false},
-    {id:231,cat:'콜드브루',emoji:'🧊', name:'콜드브루 라떼',           en:'Cold Brew Latte',     temps:['ICED'],       sizes:['M','L'],     shot:false, sweet:true},
-    // 디카페인
-    {id:240,cat:'디카페인',emoji:'🌙', name:'디카페인 아메리카노',      en:'Decaf Americano',     temps:['HOT'],        sizes:['S','M','L'], shot:false, sweet:false},
-    {id:241,cat:'디카페인',emoji:'🌙', name:'디카페인 아이스 아메리카노',en:'Decaf Iced Americano',temps:['ICED'],      sizes:['S','M','L'], shot:false, sweet:false},
-    {id:242,cat:'디카페인',emoji:'🌙', name:'디카페인 카페라떼',        en:'Decaf Cafe Latte',    temps:['HOT'],        sizes:['S','M','L'], shot:false, sweet:true},
-    {id:243,cat:'디카페인',emoji:'🌙', name:'디카페인 아이스 카페라떼', en:'Decaf Iced Latte',    temps:['ICED'],       sizes:['S','M','L'], shot:false, sweet:true},
-    {id:244,cat:'디카페인',emoji:'🌙', name:'디카페인 바닐라빈 카페라떼',en:'Decaf Vanilla Bean', temps:['HOT'],        sizes:['S','M','L'], shot:false, sweet:true},
-    {id:245,cat:'디카페인',emoji:'🌙', name:'아이스 디카페인 아이스크림 카페라떼',en:'Decaf Ice Cream Latte',temps:['ICED'],sizes:['M'],  shot:false, sweet:true},
-    // 논커피 음료 (공식사이트 BEVERAGE 메뉴)
-    {id:250,cat:'논커피',  emoji:'🥤', name:'아사이베리 요거트 프라페', en:'Acaiberry Yogurt Frappe',  temps:['BLENDED'], sizes:['M','L'], shot:false, sweet:true},
-    {id:251,cat:'논커피',  emoji:'🥤', name:'말차 프라페',              en:'Matcha Frappe',            temps:['BLENDED'], sizes:['M','L'], shot:false, sweet:true},
-    {id:252,cat:'논커피',  emoji:'🍵', name:'제주말차 카페라떼',        en:'Jeju Matcha Latte',        temps:['HOT'],     sizes:['S','M','L'], shot:false, sweet:true},
-    {id:253,cat:'논커피',  emoji:'🍵', name:'아이스 제주말차 카페라떼', en:'Iced Jeju Matcha Latte',   temps:['ICED'],    sizes:['S','M','L'], shot:false, sweet:true},
-    {id:254,cat:'논커피',  emoji:'🍵', name:'라벤더 말차 라떼',         en:'Lavender Matcha Latte',    temps:['HOT','ICED'],sizes:['M','L'], shot:false, sweet:true},
-    {id:255,cat:'논커피',  emoji:'🍵', name:'우바 아쌈 밀크티',         en:'Uva Assam Milk Tea',       temps:['HOT','ICED'],sizes:['M','L'], shot:false, sweet:true},
-    {id:256,cat:'논커피',  emoji:'🍫', name:'딥 초콜릿 라떼',           en:'Deep Chocolate Latte',     temps:['HOT'],     sizes:['M','L'], shot:false, sweet:true},
-    {id:257,cat:'논커피',  emoji:'🍫', name:'아이스 딥 초콜릿 라떼',    en:'Iced Deep Chocolate Latte',temps:['ICED'],    sizes:['M','L'], shot:false, sweet:true},
-    {id:258,cat:'논커피',  emoji:'🥤', name:'베리베리 에이드',          en:'Berry Berry Ade',          temps:['ICED'],    sizes:['M','L'], shot:false, sweet:true},
-    {id:259,cat:'논커피',  emoji:'🥤', name:'망고패션 에이드',          en:'Mango Passion Fruit Ade',  temps:['ICED'],    sizes:['M','L'], shot:false, sweet:true},
-    // 아이스크림
-    {id:260,cat:'아이스크림',emoji:'🍦',name:'아이스크림 카페라떼',     en:'Ice Cream Cafe Latte',     temps:['ICED'],    sizes:['M'],     shot:true,  sweet:true},
-    {id:261,cat:'아이스크림',emoji:'🍦',name:'밀크 소프트 아포가토',    en:'Milk Soft Affogato',       temps:['ICED'],    sizes:['M'],     shot:false, sweet:false},
-  ]
 };
 
 const SHOTS  = ['기본', '+1샷', '+2샷'];
 const SWEETS = ['기본', '시럽 반만', '시럽 없이'];
 const BRAND_CFG = {
-  sb: { label:'스타벅스 팀 주문', icon:'☕', color:'#00704A', dark:'#1E3932', light:'#D4E9E2', gold:'#CBA258' },
-  ts: { label:'투썸 팀 주문',     icon:'🎂', color:'#C8102E', dark:'#8B0000', light:'#ffe0e4', gold:'#E8A020' },
-  pb: { label:'폴바셋 팀 주문',   icon:'🫘', color:'#3D2B1F', dark:'#1C110A', light:'#EDE0D4', gold:'#B8860B' },
+  sb: { label:'스타벅스 팀 주문', short:'스타벅스', icon:'☕', color:'#0F6B45', dark:'#0B2E22', light:'#E3F1EA', gold:'#D9A441', badgeBg:'#E3F1EA', badgeFg:'#0F6B45' },
+  ts: { label:'투썸 팀 주문',     short:'투썸',     icon:'🎂', color:'#B3122E', dark:'#4E0A15', light:'#FBE3E6', gold:'#D9A441', badgeBg:'#FBE3E6', badgeFg:'#B3122E' },
 };
+// 예전에 저장된 폴바셋 주문 등 알 수 없는 브랜드도 취합 화면이 깨지지 않도록
+const LEGACY_CFG = { pb: { label:'폴바셋 팀 주문', short:'폴바셋', icon:'🫘', color:'#5B4636', badgeBg:'#EDE0D4', badgeFg:'#5B4636' } };
+function cfgOf(brand) {
+  return BRAND_CFG[brand] || LEGACY_CFG[brand] || { label:'기타', short:'기타', icon:'🥤', color:'#666', badgeBg:'#eee', badgeFg:'#555' };
+}
 
 let currentBrand = 'sb';
 let orders = [];           // 이제 Firebase에서 실시간으로 채워짐
@@ -569,7 +619,6 @@ function setBrand(brand) {
   document.getElementById('menu-search').value = '';
   document.getElementById('btn-brand-sb').classList.toggle('active', brand === 'sb');
   document.getElementById('btn-brand-ts').classList.toggle('active', brand === 'ts');
-  document.getElementById('btn-brand-pb').classList.toggle('active', brand === 'pb');
   applyBrandCSS(brand);
   renderChips();
   renderMenu();
@@ -584,7 +633,6 @@ function applyBrandCSS(brand) {
   root.style.setProperty('--brand-gold', cfg.gold);
   document.getElementById('main-header').style.background = cfg.dark;
   document.getElementById('main-tabs').style.background   = cfg.dark;
-  document.getElementById('logo-icon').textContent = cfg.icon;
   document.getElementById('logo-text').textContent = cfg.label;
 }
 
@@ -596,7 +644,7 @@ function renderChips() {
   el.innerHTML = '';
   cats.forEach(cat => {
     const d = document.createElement('div');
-    d.className = 'chip' + (cat === currentCat ? ' active' : '');
+    d.className = 'chip' + (/^[🎄🍂]/u.test(cat) ? ' season' : '') + (cat === currentCat ? ' active' : '');
     d.textContent = cat;
     d.onclick = () => { currentCat = cat; renderChips(); renderMenu(); };
     el.appendChild(d);
@@ -615,11 +663,12 @@ function renderMenu() {
   list.forEach(m => {
     const isSel = selectedMenu?.id === m.id && selectedMenu?.brand === currentBrand;
     const div = document.createElement('div');
-    div.className = 'menu-item' + (isSel ? ' selected' : '');
+    div.className = 'menu-item' + (isSel ? ' selected' : '') + (m.tag ? ' is-season' : '');
+    const tagHtml = m.tag ? `<span class="menu-tag${m.tag === 'NEW' ? ' new' : ''}">${m.tag}</span>` : '';
     div.innerHTML = `
       <div class="menu-emoji">${m.emoji}</div>
       <div class="menu-info">
-        <div class="menu-name">${m.name}</div>
+        <div class="menu-name">${m.name}${tagHtml}</div>
         <div class="menu-name-en">${m.en}</div>
       </div>
       <div class="menu-check">${isSel ? '✓' : ''}</div>`;
@@ -640,21 +689,12 @@ function selectMenu(m) {
     const btn = document.createElement('button');
     btn.className = 'opt-btn';
     btn.textContent = labels[t] || t;
-    btn.onclick = () => { options.temp = t; setActive(tempEl, btn); checkSubmit(); };
+    btn.onclick = () => { options.temp = t; setActive(tempEl, btn); renderSizes(m); checkSubmit(); };
     tempEl.appendChild(btn);
   });
   if (m.temps.length === 1) { options.temp = m.temps[0]; tempEl.querySelector('.opt-btn').classList.add('active'); }
 
-  const sizeEl = document.getElementById('opt-size');
-  sizeEl.innerHTML = '';
-  m.sizes.forEach(s => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.textContent = s;
-    btn.onclick = () => { options.size = s; setActive(sizeEl, btn); checkSubmit(); };
-    sizeEl.appendChild(btn);
-  });
-  if (m.sizes.length === 1) { options.size = m.sizes[0]; sizeEl.querySelector('.opt-btn').classList.add('active'); }
+  renderSizes(m);
 
   document.getElementById('opt-shot-group').style.display  = m.shot  ? 'block' : 'none';
   document.getElementById('opt-sweet-group').style.display = m.sweet ? 'block' : 'none';
@@ -665,6 +705,22 @@ function selectMenu(m) {
   document.getElementById('options-panel').style.display = 'block';
   checkSubmit();
   setTimeout(() => document.getElementById('options-panel').scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+}
+
+// 사이즈 버튼 (투썸 Max는 ICED 전용이라 HOT이면 숨김)
+function renderSizes(m) {
+  const sizeEl = document.getElementById('opt-size');
+  const list = (options.temp === 'HOT') ? m.sizes.filter(s => s !== 'Max') : m.sizes;
+  if (!list.includes(options.size)) options.size = '';
+  sizeEl.innerHTML = '';
+  list.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn' + (s === options.size ? ' active' : '');
+    btn.textContent = s;
+    btn.onclick = () => { options.size = s; setActive(sizeEl, btn); checkSubmit(); };
+    sizeEl.appendChild(btn);
+  });
+  if (list.length === 1) { options.size = list[0]; sizeEl.querySelector('.opt-btn').classList.add('active'); }
 }
 
 function renderOptBtns(id, list, key) {
@@ -719,7 +775,7 @@ function submitOrder() {
 
   window.fbPushOrder(order)
     .then(() => {
-      showToast(`${team} ${name}님 주문 완료! ✅`);
+      showToast(`🎁 ${team} ${name}님 주문 완료!`);
       selectedMenu = null;
       options = { temp:'', size:'', shot:'기본', sweet:'기본' };
       document.getElementById('input-name').value = '';
@@ -757,7 +813,7 @@ function renderSummary() {
   groupArea.innerHTML = '';
 
   if (orders.length === 0) {
-    cards.innerHTML = `<div class="empty-state"><div class="empty-icon">☕</div><p>아직 신청된 주문이 없어요</p></div>`;
+    cards.innerHTML = `<div class="empty-state"><div class="empty-icon">🎄</div><p>아직 신청된 주문이 없어요</p></div>`;
     document.getElementById('copy-area').style.display = 'none';
     return;
   }
@@ -795,11 +851,11 @@ function renderSummary() {
     </div>`;
 
     Object.entries(brandsInTeam).forEach(([brand, menus]) => {
-      const cfg   = BRAND_CFG[brand];
+      const cfg   = cfgOf(brand);
       const total = orders.filter(o => (o.team || '미지정') === team && o.brand === brand).length;
       let html = `<div class="group-block">
         <div class="group-block-header" style="background:${cfg.color}">
-          <span>${cfg.icon} ${cfg.label.replace(' 팀 주문','')}</span>
+          <span>${cfg.icon} ${cfg.short}</span>
           <span class="total-badge">총 ${total}잔</span>
         </div>`;
 
@@ -835,13 +891,12 @@ function renderSummary() {
   orders.forEach((o) => {
     const tags = makeOptTags(o);
     const tagStr = tags.map(t => t.text).join(' · ') || '기본 옵션';
-    const badgeClass = o.brand === 'sb' ? 'badge-sb' : 'badge-ts';
-    const brandLabel = o.brand === 'sb' ? '스타벅스' : '투썸';
+    const bc = cfgOf(o.brand);
     const card = document.createElement('div');
     card.className = 'order-card';
     card.innerHTML = `
       <div class="order-card-top">
-        <span class="order-person"><span class="team-badge">${o.team||'미지정'}</span>${o.name}<span class="order-brand-badge ${badgeClass}">${brandLabel}</span></span>
+        <span class="order-person"><span class="team-badge">${o.team||'미지정'}</span>${o.name}<span class="order-brand-badge" style="background:${bc.badgeBg};color:${bc.badgeFg}">${bc.short}</span></span>
         <button class="btn-delete" onclick="deleteOrder('${o.id}')">✕</button>
       </div>
       <div class="order-menu-name">${o.emoji} ${o.menuName}</div>
@@ -852,12 +907,12 @@ function renderSummary() {
   // ── 복사 텍스트 (팀별로 구분) ──
   const lines = [];
   teamNames.forEach(team => {
-    lines.push(`━━━━━━━━━━━━━`);
+    lines.push(`🎄━━━━━━━━━━━━━`);
     lines.push(`👥 [${team}]`);
     const brandsInTeam = teamMap[team];
     Object.entries(brandsInTeam).forEach(([brand, menus]) => {
-      const cfg = BRAND_CFG[brand];
-      lines.push(`${cfg.icon} ${cfg.label.replace(' 팀 주문','')}`);
+      const cfg = cfgOf(brand);
+      lines.push(`${cfg.icon} ${cfg.short}`);
       Object.entries(menus).forEach(([menuKey, optMap]) => {
         lines.push(`▸ ${menuKey}`);
         Object.values(optMap).forEach(({ o, names, count }) => {
@@ -904,6 +959,25 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ── 눈 내리기 ──
+function makeSnow() {
+  const box = document.getElementById('snow');
+  const chars = ['❄','❅','❆','•'];
+  for (let i = 0; i < 26; i++) {
+    const f = document.createElement('span');
+    f.className = 'flake';
+    f.textContent = chars[i % chars.length];
+    f.style.left = (Math.random() * 100) + 'vw';
+    f.style.fontSize = (8 + Math.random() * 10) + 'px';
+    f.style.opacity = (0.35 + Math.random() * 0.5).toFixed(2);
+    f.style.animationDuration = (9 + Math.random() * 10) + 's';
+    f.style.animationDelay = (-Math.random() * 18) + 's';
+    f.style.setProperty('--drift', ((Math.random() * 60) - 30) + 'px');
+    box.appendChild(f);
+  }
+}
+
+makeSnow();
 init();
 </script>
 </body>
