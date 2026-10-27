@@ -378,7 +378,7 @@
 
 <script>
 // ── 메뉴 데이터 (2026.10.24 기준) ─────────────────────
-// 스타벅스: starbucks.co.kr 공식 상품 페이지 + 신세계그룹 뉴스룸 보도자료(2026.10.21, 크리스마스 시즌 10.22~)
+// 스타벅스: starbucks.co.kr 공식 상품 페이지 + 신세계그룹 뉴스룸 보도자료 (2026.10.27 기준 판매 중 메뉴)
 // 투썸: 매장 레시피 매뉴얼(twosome-recipe-app, 2026.10.23) 기준 — 여름 한정(빙수·눈꽃컵·수박/멜론 주스 등) 제외
 const M = (id, cat, emoji, name, en, temps, sizes, shot, sweet, tag) =>
   ({ id, cat, emoji, name, en, temps, sizes, shot, sweet, tag: tag || '' });
@@ -390,16 +390,17 @@ const HI  = ['HOT','ICED'];
 
 const MENUS = {
   sb: [
-    // 🎄 크리스마스 시즌 (2026.10.22~)
-    M(1001,'🎄 크리스마스','🎄','토피 넛 라떼',               'Toffee Nut Latte',              HI,       SB3, true,  true,  'XMAS'),
-    M(1002,'🎄 크리스마스','🎄','윈터 스카치 바닐라 라떼',    'Winter Scotch Vanilla Latte',   HI,       SB3, true,  true,  'XMAS'),
-    M(1003,'🎄 크리스마스','🍷','클래식 뱅쇼 히비스커스 티', 'Classic Vin Chaud Hibiscus Tea',HI,       SB3, false, true,  'XMAS'),
-    M(1004,'🎄 크리스마스','🍑','살구 조이풀 메들리 티 라떼', 'Apricot Joyful Medley Tea Latte',HI,      SB3, false, true,  'NEW'),
-    M(1005,'🎄 크리스마스','🍩','블랙 글레이즈드 라떼',       'Black Glazed Latte',            HI,       SB3, true,  true,  '시즌'),
-    M(1006,'🎄 크리스마스','🍵','말차 글레이즈드 티 라떼',    'Matcha Glazed Tea Latte',       HI,       SB3, false, true,  '시즌'),
-    M(1007,'🎄 크리스마스','🍵','호지 글레이즈드 티 라떼',    'Hoji Glazed Tea Latte',         HI,       SB3, false, true,  '시즌'),
+    // 🍂 시즌 음료 (판매 중)
+    M(1001,'🍂 시즌 음료','🌰','토피 넛 라떼',               'Toffee Nut Latte',              HI,       SB3, true,  true,  '시즌'),
+    M(1002,'🍂 시즌 음료','☕','윈터 스카치 바닐라 라떼',    'Winter Scotch Vanilla Latte',   HI,       SB3, true,  true,  '시즌'),
+    M(1003,'🍂 시즌 음료','🍷','클래식 뱅쇼 히비스커스 티', 'Classic Vin Chaud Hibiscus Tea',HI,       SB3, false, true,  '시즌'),
+    M(1004,'🍂 시즌 음료','🍑','살구 조이풀 메들리 티 라떼', 'Apricot Joyful Medley Tea Latte',HI,      SB3, false, true,  'NEW'),
+    M(1005,'🍂 시즌 음료','🍩','블랙 글레이즈드 라떼',       'Black Glazed Latte',            HI,       SB3, true,  true,  '시즌'),
+    M(1006,'🍂 시즌 음료','🍵','말차 글레이즈드 티 라떼',    'Matcha Glazed Tea Latte',       HI,       SB3, false, true,  '시즌'),
+    M(1007,'🍂 시즌 음료','🍵','호지 글레이즈드 티 라떼',    'Hoji Glazed Tea Latte',         HI,       SB3, false, true,  '시즌'),
     // 에스프레소
     M(1,  '에스프레소','☕','카페 아메리카노',       'Caffe Americano',        HI,       SB3, true,  true),
+    M(14, '에스프레소','🫧','에어로카노',            'Aerocano',               ['ICED'], SB3, true,  true),
     M(2,  '에스프레소','☕','카페 라떼',             'Caffe Latte',            HI,       SB3, true,  true),
     M(3,  '에스프레소','☕','카푸치노',              'Cappuccino',             HI,       SB3, true,  true),
     M(4,  '에스프레소','☕','카라멜 마키아또',       'Caramel Macchiato',      HI,       SB3, true,  true),
@@ -421,6 +422,8 @@ const MENUS = {
     M(22, '콜드 브루','🧊','바닐라 크림 콜드 브루',  'Vanilla Cream Cold Brew',['ICED'], SB3, false, true),
     M(23, '콜드 브루','🧊','오트 콜드 브루',         'Oat Cold Brew',          ['ICED'], SB3, false, true),
     M(24, '콜드 브루','🧊','베르가못 콜드 브루',     'Bergamot Cold Brew',     ['ICED'], SB3, false, true),
+    M(26, '콜드 브루','🧊','바닐라 아인슈페너 콜드 브루','Vanilla Einspänner Cold Brew',['ICED'], SB3, false, true),
+    M(27, '콜드 브루','🧊','프렌치 바닐라 콜드 브루','French Vanilla Cold Brew',['ICED'], SB3, false, true),
     M(25, '콜드 브루','🧊','나이트로 콜드 브루',     'Nitro Cold Brew',        ['ICED'], ['Short','Tall','Grande'], false, false),
     // 프라푸치노 · 블렌디드
     M(30, '프라푸치노·블렌디드','🥤','자바 칩 프라푸치노',     'Java Chip Frappuccino',        ['BLENDED'], SB3, true,  true),
